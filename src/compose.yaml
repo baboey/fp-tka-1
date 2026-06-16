@@ -1,6 +1,7 @@
 services:
   web:
     image: nginx
+    container_name: web
     volumes:
       - ./nginx/nginx.conf:/tmp/nginx.conf
     environment: 
@@ -14,7 +15,6 @@ services:
   backend:
     build:
       context: flask
-#      target: builder
     # flask requires SIGINT to stop gracefully
     # (default stop signal from Compose is SIGTERM)
     stop_signal: SIGINT
@@ -26,4 +26,16 @@ services:
       -  mongo  
 
   mongo:
-    image: mongo
+    image: mongo:7.0
+    restart: always
+    container_name: db
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: database
+      MONGO_USER: user
+      MONGO_PASSWORD: user
+    volumes:
+      - ./scripts/init_db.sh:/docker-entrypoint-initdb.d/init.sh:ro
