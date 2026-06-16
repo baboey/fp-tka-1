@@ -30,6 +30,10 @@ case "$1" in
         ;;
 
     *)
-        echo Command not found
+        echo -e "Usage:
+        c            - create
+        u <order_id> - update
+        g <order_id> - get one
+        p            - print all"
 
 esac
