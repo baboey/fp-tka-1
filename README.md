@@ -99,30 +99,53 @@ Aplikasi ini dideploy menggunakan kontainerisasi **Docker Compose** untuk memast
 
 ## 4. Hasil Pengujian Endpoint
 
-Seluruh API Endpoint utama telah diuji menggunakan Postman/curl dan bekerja dengan sukses:
+> [!NOTE]
+> **[TODO: Jalankan aplikasi di VM/Lokal, ambil screenshot Postman untuk setiap endpoint dan antarmuka web, lalu tempel di bawah ini]**
 
-1.  **Registrasi (`POST /auth/register`)**: Berhasil mendaftarkan user baru dan mengembalikan token JWT.
-2.  **Login (`POST /auth/login`)**: Autentikasi user dan admin dengan pengembalian token JWT.
-3.  **Katalog Produk (`GET /products`)**: Mengembalikan list katalog produk secara paginated dan terurut.
-4.  **Buat Order (`POST /orders`)**: Membuat order berautentikasi (JWT) disertai pengecekan stok produk secara real-time.
-5.  **Dashboard Admin (`GET /admin/stats`)**: Menghitung statistik pendapatan, produk terlaris, dan agregasi data bulanan.
-6.  **Antarmuka Frontend**: Menampilkan UI sederhana yang responsif pada `http://localhost/` untuk membuat pesanan dan melihat riwayat data secara instan.
+Pengujian endpoint dapat dilakukan secara manual menggunakan Postman atau helper script dengan target url `http://localhost/` atau `http://<IP_VM>/`:
+
+1.  **Registrasi (`POST /auth/register`)**
+    *   Mengirimkan data nama, email, dan password untuk membuat user baru.
+    *   *Screenshot Hasil:* `[Masukkan screenshot respon Postman / register]`
+2.  **Login (`POST /auth/login`)**
+    *   Autentikasi akun dan mengembalikan token JWT untuk digunakan di header Authorization.
+    *   *Screenshot Hasil:* `[Masukkan screenshot respon Postman / login]`
+3.  **Katalog Produk (`GET /products`)**
+    *   Mengembalikan list katalog produk.
+    *   *Screenshot Hasil:* `[Masukkan screenshot respon Postman / products]`
+4.  **Buat Order (`POST /orders`)**
+    *   Membuat order baru dengan menyertakan token JWT, mengurangi stok produk di DB.
+    *   *Screenshot Hasil:* `[Masukkan screenshot respon Postman / orders]`
+5.  **Dashboard Admin (`GET /admin/stats`)**
+    *   Mengembalikan statistik admin.
+    *   *Screenshot Hasil:* `[Masukkan screenshot respon Postman / admin stats]`
+6.  **Antarmuka Frontend Web**
+    *   Tampilan frontend saat diakses melalui browser pada `http://localhost/`.
+    *   *Screenshot Hasil:* `[Masukkan screenshot tampilan web browser]`
 
 ---
 
 ## 5. Hasil Load Testing (Locust)
 
-Pengujian beban dilakukan menggunakan Locust dengan script [`locustfile.py`](file:///c:/Users/arya4/fp-tka-1/Keterangan%20Final%20Project%20TKA/Resources/Test/locustfile.py) dari host eksternal untuk menghindari bias resource:
+> [!NOTE]
+> **[TODO: Setelah menjalankan pengujian beban dengan Locust ke server VM, masukkan nilai RPS/Concurrency aktual dan lampirkan screenshot chart Locust]**
 
-| No | Skenario | Parameter | Durasi | Target Hasil |
-|---|---|---|---|---|
-| 1 | Maksimum RPS | Naikkan user bertahap | 60s | Mencari RPS puncak dengan 0% failure |
-| 2 | Peak Concurrency (Spawn 50) | Naikkan user hingga failure | 60s | Concurrency puncak sebelum failure |
-| 3 | Peak Concurrency (Spawn 100) | Naikkan user hingga failure | 60s | Concurrency puncak sebelum failure |
-| 4 | Peak Concurrency (Spawn 200) | Naikkan user hingga failure | 60s | Concurrency puncak sebelum failure |
-| 5 | Peak Concurrency (Spawn 500) | Naikkan user hingga failure | 60s | Concurrency puncak sebelum failure |
+Pengujian beban dilakukan menggunakan Locust dengan script [`locustfile.py`](file:///c:/Users/arya4/fp-tka-1/Keterangan%20Final%20Project%20TKA/Resources/Test/locustfile.py) dari host eksternal untuk menghindari persaingan resource.
 
-*(Catatan: Grafik performa RPS, response time, dan utilitas CPU/Memory akan di-upload ke folder `result/` setelah pengujian beban pada cloud selesai).*
+### Ringkasan Tabel Hasil Pengujian
+
+| No | Skenario | Parameter | Durasi | Hasil Aktual (RPS / User) | Status / Failure |
+|---|---|---|---|---|---|
+| 1 | Maksimum RPS | Naikkan user bertahap | 60s | `[Masukkan RPS Puncak]` RPS | `[0% Failure / OK]` |
+| 2 | Peak Concurrency (Spawn 50) | Naikkan user hingga failure | 60s | `[Masukkan Max User]` Users | `[0% Failure / OK]` |
+| 3 | Peak Concurrency (Spawn 100) | Naikkan user hingga failure | 60s | `[Masukkan Max User]` Users | `[0% Failure / OK]` |
+| 4 | Peak Concurrency (Spawn 200) | Naikkan user hingga failure | 60s | `[Masukkan Max User]` Users | `[0% Failure / OK]` |
+| 5 | Peak Concurrency (Spawn 500) | Naikkan user hingga failure | 60s | `[Masukkan Max User]` Users | `[0% Failure / OK]` |
+
+### Grafik Performa & Utilitas Sistem (Locust & Htop)
+*   **Grafik RPS & Response Time:** `[Masukkan screenshot chart Locust]`
+*   **Utilisasi Resource Server (CPU/Memory):** `[Masukkan screenshot htop saat pengujian]`
+
 
 ---
 
