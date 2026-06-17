@@ -18,7 +18,7 @@ Berikut adalah daftar anggota kelompok beserta pembagian tanggung jawab dalam pe
 | No | Nama / NRP | Peran Utama | Deskripsi Kontribusi / Pembagian Kerja |
 |----|------------|-------------|----------------------------------------|
 | 1  | [Nama Anggota 1] / [NRP 1] | **Team Lead & Cloud Architect** | Merancang keseluruhan arsitektur cloud, mengelola alokasi anggaran, dan menyusun spesifikasi VM. |
-| 2  | [Nama Anggota 2] / [NRP 2] | **Backend Developer (Core)** | Melakukan migrasi kode backend produksi utama yang terintegrasi dengan JWT Auth dan Database. |
+| 2  | Arya Bisma Putra Refman / 5027241036 | **Backend Developer (Core)** | Melakukan migrasi kode backend produksi utama yang terintegrasi dengan JWT Auth dan Database. |
 | 3  | [Nama Anggota 3] / [NRP 3] | **Backend & Security Engineer** | Membuat API kompatibilitas frontend unauthenticated dan merancang logika validasi token JWT. |
 | 4  | [Nama Anggota 4] / [NRP 4] | **Nginx & Frontend Integrator** | Mengintegrasikan static asset frontend ke server Nginx, merekayasa routing, dan menyelesaikan isu CORS. |
 | 5  | [Nama Anggota 5] / [NRP 5] | **Database Administrator (DBA)** | Mengatur seeding database MongoDB, mengoptimasi skrip `mongorestore` otomatis, dan merancang indeks query. |
