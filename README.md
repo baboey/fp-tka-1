@@ -11,7 +11,22 @@ Dalam era *e-commerce* modern, performa backend dalam memproses pesanan (*Order 
 ### Permasalahan
 Sebagai Cloud Engineer, tantangannya adalah merancang, mendeploy, dan mengoptimalkan backend **Order Processing Service** berbasis **Python (Flask)** dengan database **MongoDB** dan reverse proxy **Nginx**. Infrastruktur yang dirancang harus memiliki stabilitas tinggi dengan **budget maksimal Rp 1.300.000 (≈ $75 USD) per bulan**, serta mampu menghadapi pengujian beban (*load testing*) menggunakan Locust dengan tingkat kegagalan (*failure*) 0%.
 
+### Anggota Kelompok & Pembagian Kerja
+
+Berikut adalah daftar anggota kelompok beserta pembagian tanggung jawab dalam pengerjaan Final Project ini:
+
+| No | Nama / NRP | Peran Utama | Deskripsi Kontribusi / Pembagian Kerja |
+|----|------------|-------------|----------------------------------------|
+| 1  | [Nama Anggota 1] / [NRP 1] | **Team Lead & Cloud Architect** | Merancang keseluruhan arsitektur cloud, mengelola alokasi anggaran, dan menyusun spesifikasi VM. |
+| 2  | [Nama Anggota 2] / [NRP 2] | **Backend Developer (Core)** | Melakukan migrasi kode backend produksi utama yang terintegrasi dengan JWT Auth dan Database. |
+| 3  | [Nama Anggota 3] / [NRP 3] | **Backend & Security Engineer** | Membuat API kompatibilitas frontend unauthenticated dan merancang logika validasi token JWT. |
+| 4  | [Nama Anggota 4] / [NRP 4] | **Nginx & Frontend Integrator** | Mengintegrasikan static asset frontend ke server Nginx, merekayasa routing, dan menyelesaikan isu CORS. |
+| 5  | [Nama Anggota 5] / [NRP 5] | **Database Administrator (DBA)** | Mengatur seeding database MongoDB, mengoptimasi skrip `mongorestore` otomatis, dan merancang indeks query. |
+| 6  | [Nama Anggota 6] / [NRP 6] | **DevOps & Containerization** | Mengembangkan berkas Dockerfile, menyusun konfigurasi `docker-compose.yaml`, dan memanage port-binding lokal/cloud. |
+| 7  | [Nama Anggota 7] / [NRP 7] | **QA & Load Tester (Locust)** | Menyiapkan pengujian Locust, menjalankan pengujian untuk 5 skenario beban puncak, dan mendokumentasikan performa RPS. |
+
 ---
+
 
 ## 2. Arsitektur Cloud
 
