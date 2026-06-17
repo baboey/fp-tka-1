@@ -4,7 +4,7 @@
 q_MONGO_USER=$(jq --arg v "$MONGO_USER" -n '$v')
 q_MONGO_PASSWORD=$(jq --arg v "$MONGO_PASSWORD" -n '$v')
 
-# Run MongoDB commands
+echo "=== Creating Database User ==="
 mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" admin <<EOF
     use $MONGO_INITDB_DATABASE;
     db.createUser({
@@ -12,6 +12,8 @@ mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" admin 
         pwd: $q_MONGO_PASSWORD,
         roles: ["readWrite"],
     });
-    db.createCollection("orders");
 EOF
 
+echo "=== Restoring Database Seed Dump ==="
+mongorestore -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --drop /dump/
+echo "=== Database Seeding Completed ==="
