@@ -699,4 +699,4 @@ def index_health():
 
 if __name__ == "__main__":
     port = int(os.environ.get("FLASK_SERVER_PORT", 9091))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)

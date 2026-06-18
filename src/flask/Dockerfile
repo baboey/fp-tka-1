@@ -7,4 +7,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-CMD ["python3", "server.py"]
+CMD ["gunicorn", "-w", "5", "-k", "gthread", "--threads", "4", "-b", "0.0.0.0:9091", "server:app"]
