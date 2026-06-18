@@ -111,20 +111,30 @@ fp-tka-1/
 > Catatan: backend yang dijalankan `src/flask/server.py` merupakan pengembangan dari backend resmi soal (`app.py`), ditambah endpoint kompatibilitas `/order`, opsi akses `/orders`, dan health-check `/`.
 
 ### Langkah Konfigurasi (ringkas)
-1. **Clone & masuk direktori**
+1. **Clone/Pull perubahan terbaru & masuk direktori**
    ```bash
-   git clone <url-repo-kelompok> && cd fp-tka-1/src
+   # Di VM, tarik commit terbaru jika sudah pernah clone
+   git pull origin main
+   cd src/
    ```
-2. **Jalankan baseline lokal**
+2. **Jalankan baseline lokal / Reset container**
+   Jika container sudah berjalan sebelumnya, jalankan perintah berikut untuk menghentikan dan membangun ulang menggunakan Gunicorn dan perbaikan Nginx:
    ```bash
+   docker compose down
    docker compose up -d --build
    ```
-   Saat pertama kali, [`scripts/init_db.sh`](src/scripts/init_db.sh) otomatis membuat user DB, menjalankan `mongorestore` (505 user, 96 produk, 10.000 order), lalu membuat **index**.
-3. **Optimasi performa**
+   Saat pertama kali dijalankan, [`scripts/init_db.sh`](src/scripts/init_db.sh) otomatis membuat user DB, menjalankan `mongorestore` (505 user, 96 produk, 10.000 order), lalu membuat **index**.
+3. **Reset Database Uji (Locust)**
+   Untuk mereset akumulasi data transaksi (order) hasil load testing kembali ke data awal tanpa mematikan container, jalankan:
+   ```bash
+   chmod +x scripts/reset_db.sh
+   ./scripts/reset_db.sh
+   ```
+4. **Optimasi performa**
    - **Gunicorn** (ganti Flask dev server) di [`flask/Dockerfile`](src/flask/Dockerfile): `gunicorn -w 5 -k gthread --threads 4`.
    - **Index MongoDB** pada `users.email` (unique), `products`, `orders`, `audit_logs`.
    - **Nginx microcache** `GET /products` di [`nginx/nginx.conf`](src/nginx/nginx.conf) + `gzip` + `keepalive`.
-4. **Deploy Docker Swarm (cloud)** — diotomasi Ansible:
+5. **Deploy Docker Swarm (cloud)** — diotomasi Ansible:
    ```bash
    ansible-playbook -i ansible/inventory.ini ansible/provision.yml ansible/swarm.yml ansible/deploy.yml
    ```
