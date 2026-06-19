@@ -16,11 +16,13 @@ Env vars:
 
 import os
 import uuid
+import json
 from datetime import datetime, timezone, timedelta
 from functools import wraps
 
 import bcrypt
 import jwt
+import redis
 from bson import ObjectId
 from flask import Flask, jsonify, request, g
 from pymongo import MongoClient, DESCENDING, ASCENDING
@@ -33,9 +35,12 @@ app = Flask(__name__)
 MONGO_URI   = os.environ.get("MONGO_URI",   "mongodb://localhost:27017/")
 JWT_SECRET  = os.environ.get("JWT_SECRET",  "ganti-ini-di-production-dengan-string-acak-panjang")
 JWT_EXPIRES = int(os.environ.get("JWT_EXPIRES", 86400))
+REDIS_URL   = os.environ.get("REDIS_URL",   "redis://localhost:6379/0")
 
 client = MongoClient(MONGO_URI, maxPoolSize=100, minPoolSize=10)
 db     = client["orderdb"]
+
+redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
 users_col  = db["users"]
 prods_col  = db["products"]
@@ -219,12 +224,19 @@ def list_products():
                 "rating": ("rating", DESCENDING), "newest": ("created_at", DESCENDING)}
     sort_key, sort_dir = sort_map.get(request.args.get("sort", "newest"), ("created_at", DESCENDING))
 
+    cache_key = f"products:{cat}:{search}:{page}:{limit}:{sort_key}:{sort_dir}"
+    cached = redis_client.get(cache_key)
+    if cached:
+        return cached
+
     total = prods_col.count_documents(query)
     docs  = list(prods_col.find(query, {"_id": 1, "name": 1, "category": 1, "price": 1,
                                         "stock": 1, "rating": 1, "rating_count": 1, "image_url": 1})
                  .sort(sort_key, sort_dir).skip((page-1)*limit).limit(limit))
-    return jsonify({"page": page, "limit": limit, "total": total,
+    response = jsonify({"page": page, "limit": limit, "total": total,
                     "total_pages": -(-total // limit), "data": [serialize(d) for d in docs]})
+    redis_client.setex(cache_key, 30, response.get_data(as_text=True))
+    return response
 
 
 @app.route("/products/<product_id>", methods=["GET"])
@@ -368,6 +380,8 @@ def create_order():
     }
     result = orders_col.insert_one(doc)
     doc["_id"] = result.inserted_id
+    redis_client.delete("admin_stats")
+    redis_client.delete("products:*")
     return jsonify(serialize(doc)), 201
 
 
@@ -586,6 +600,11 @@ def delete_user(user_id):
 @app.route("/admin/stats", methods=["GET"])
 @admin_required
 def admin_stats():
+    cache_key = "admin_stats"
+    cached = redis_client.get(cache_key)
+    if cached:
+        return cached
+
     # Revenue & order count by status
     status_pipeline = [
         {"$group": {
@@ -649,7 +668,7 @@ def admin_stats():
 
     total_rev  = sum(s.get("total_revenue", 0) for s in by_status if s["_id"] == "completed")
 
-    return jsonify({
+    response = jsonify({
         "summary": {
             "total_orders":  total_orders,
             "total_revenue": total_rev,
@@ -662,6 +681,8 @@ def admin_stats():
         "monthly":      [serialize(m) for m in monthly],
         "by_city":      [serialize(c) for c in by_city],
     })
+    redis_client.setex(cache_key, 30, response.get_data(as_text=True))
+    return response
 
 
 @app.route("/admin/logs", methods=["GET"])

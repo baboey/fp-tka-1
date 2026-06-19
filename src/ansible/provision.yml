@@ -1,0 +1,59 @@
+---
+- name: Provision all VMs with Docker
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+        state: present
+
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_check
+      ignore_errors: yes
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+        state: present
+      when: docker_check.rc != 0
+
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+    - name: Install Docker Python SDK
+      pip:
+        name: docker
+        executable: pip3
+
+    - name: Verify Docker installation
+      command: docker info
+      register: docker_info
+      changed_when: false
+
+    - name: Display Docker version
+      debug:
+        msg: "Docker installed on {{ inventory_hostname }}"
