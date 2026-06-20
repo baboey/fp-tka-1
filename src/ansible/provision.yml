@@ -17,12 +17,8 @@
           - gnupg
           - lsb-release
           - python3-pip
+          - python3-docker
         state: present
-
-    - name: Check if Docker is installed
-      command: docker --version
-      register: docker_check
-      ignore_errors: yes
 
     - name: Install Docker
       apt:
@@ -30,7 +26,6 @@
           - docker.io
           - docker-compose
         state: present
-      when: docker_check.rc != 0
 
     - name: Start and enable Docker
       systemd:
@@ -38,16 +33,13 @@
         state: started
         enabled: yes
 
-    - name: Add vagrant user to docker group
+    - name: Add Docker users to docker group
       user:
-        name: vagrant
+        name: "{{ item }}"
         groups: docker
         append: yes
-
-    - name: Install Docker Python SDK
-      pip:
-        name: docker
-        executable: pip3
+      loop: "{{ docker_users | default([docker_user | default(ansible_user)]) }}"
+      when: item | length > 0
 
     - name: Verify Docker installation
       command: docker info

@@ -8,9 +8,10 @@
         dest: /etc/docker/daemon.json
         content: |
           {
-            "insecure-registries": ["192.168.56.10:5000"]
+            "insecure-registries": {{ docker_insecure_registries | default([]) | to_json }}
           }
       notify: restart docker
+      when: (docker_insecure_registries | default([])) | length > 0
 
   handlers:
     - name: restart docker
@@ -24,6 +25,7 @@
   tasks:
     - name: Pull registry image
       shell: docker pull registry:2
+      when: use_local_registry | default(false) | bool
 
     - name: Run local registry
       shell: |
@@ -34,6 +36,7 @@
           -p 5000:5000 \
           -v /opt/registry:/var/lib/registry \
           registry:2
+      when: use_local_registry | default(false) | bool
 
 - name: Deploy Redis cache on Manager
   hosts: managers
@@ -53,7 +56,7 @@
   hosts: managers
   become: yes
   vars:
-    registry: "192.168.56.10:5000"
+    registry: "{{ docker_registry }}"
     image_name: "flask-order"
     image_tag: "latest"
   tasks:
@@ -72,7 +75,7 @@
         cd /opt/flask
         docker build -t {{ registry }}/{{ image_name }}:{{ image_tag }} .
 
-    - name: Push image to local registry
+    - name: Push Flask image to registry
       shell: docker push {{ registry }}/{{ image_name }}:{{ image_tag }}
 
 - name: Deploy MongoDB standalone on N4
@@ -115,7 +118,7 @@
               container_name: mongodb
               restart: always
               ports:
-                - "192.168.56.13:27017:27017"
+                - "{{ private_ip_mongodb }}:27017:27017"
               environment:
                 MONGO_INITDB_ROOT_USERNAME: root
                 MONGO_INITDB_ROOT_PASSWORD: root
@@ -138,7 +141,7 @@
 
     - name: Wait for MongoDB to be ready
       wait_for:
-        host: 192.168.56.13
+        host: "{{ private_ip_mongodb }}"
         port: 27017
         delay: 10
         timeout: 120
@@ -147,7 +150,7 @@
   hosts: managers
   become: yes
   vars:
-    registry: "192.168.56.10:5000"
+    registry: "{{ docker_registry }}"
   tasks:
     - name: Create nginx directories
       file:
@@ -176,13 +179,13 @@
       replace:
         path: /opt/stack.yaml
         regexp: 'MONGO_DB_HOST'
-        replace: '192.168.56.13'
+        replace: '{{ private_ip_mongodb }}'
 
     - name: Update stack file with Redis IP
       replace:
         path: /opt/stack.yaml
         regexp: 'REDIS_HOST'
-        replace: '192.168.56.10'
+        replace: '{{ private_ip_redis | default(private_ip_manager) }}'
 
     - name: Update stack file with registry
       replace:

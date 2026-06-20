@@ -10,7 +10,7 @@
       ignore_errors: yes
 
     - name: Initialize Swarm
-      command: docker swarm init --advertise-addr 192.168.56.10
+      command: docker swarm init --advertise-addr {{ private_ip_manager | default(ansible_host) }}
       when: swarm_status.stdout != "active"
       register: swarm_init
 
@@ -42,8 +42,8 @@
     - name: Join Swarm as worker
       command: >
         docker swarm join 
-        --token {{ hostvars['tka-n1']['swarm_worker_token'] }}
-        192.168.56.10:2377
+        --token {{ hostvars[groups['managers'][0]]['swarm_worker_token'] }}
+        {{ private_ip_manager }}:2377
       when: swarm_status.stdout != "active"
 
 - name: Verify Swarm cluster
