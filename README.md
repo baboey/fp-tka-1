@@ -660,14 +660,21 @@ ghi789...      tka_nginx     replicated   1/1        nginx:alpine
 
 Sesuai ketentuan soal: *"Hapus isi database yang di-insert di setiap skenario pengujian agar tidak terjadi akumulasi data. Tidak diperkenankan hapus isi database awal."*
 
-Script [`reset_db.sh`](src/scripts/reset_db.sh) menjalankan `mongorestore --drop` yang me-restore seluruh koleksi ke kondisi **seed data awal** (505 users, 96 produk, 10.000 orders bawaan) tanpa menyisakan data dari skenario sebelumnya:
+`mongorestore --drop` me-restore seluruh koleksi ke kondisi **seed data awal** (505 users, 96 produk, 10.000 orders bawaan) tanpa menyisakan data dari skenario sebelumnya. Command yang dijalankan dari `tka-vm4-mongodb` **sebelum setiap skenario**:
 
 ```bash
-#!/bin/bash
-# Dijalankan SEBELUM setiap skenario Locust
-docker compose exec -T mongo mongorestore \
+# Dijalankan di tka-vm4-mongodb sebelum setiap skenario Locust
+docker exec mongodb mongorestore \
   -u root -p root --authenticationDatabase admin \
   --drop /dump/
+```
+
+Verifikasi reset berhasil (jumlah dokumen kembali ke seed awal):
+
+```bash
+docker exec mongodb mongosh -u root -p root --authenticationDatabase admin \
+  --eval 'db = db.getSiblingDB("orderdb"); print("orders:", db.orders.countDocuments(), "users:", db.users.countDocuments())'
+# Output: orders: 10000 users: 505
 ```
 
 ---
@@ -850,9 +857,9 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 | **Tool** | Locust 2.44.4 |
 | **Host Locust** | `tka-vm5-locust` (10.148.0.7) — **host TERPISAH** dari server aplikasi |
 | **Target** | `http://34.87.110.32` (External IP tka-vm1-manager) |
-| **Locustfile** | [`src/locust/locustfile.py`](src/locust/locustfile.py) |
+| **Locustfile** | [`Resources/Test/locustfile.py`](Resources/Test/locustfile.py) |
 | **Traffic Pattern** | 80% CustomerUser (browse, order) + 20% AdminUser (stats, manage) |
-| **Database Reset** | `reset_db.sh` dijalankan **sebelum setiap skenario** |
+| **Database Reset** | `mongorestore --drop` dijalankan **sebelum setiap skenario** |
 | **Flask Replicas** | **6 replicas** (distributed across vm1-manager, vm2, vm3 via Docker Swarm) |
 
 ### Skenario 1 — Maksimum RPS (0% Failure)
