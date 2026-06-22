@@ -1,0 +1,10 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,/admin/users?page=2&limit=20&is_active=false,CatchResponseError(0),1,2026-06-22T15:00:14Z,2026-06-22T15:00:14Z
+GET,/admin/logs?limit=30,CatchResponseError(0),2,2026-06-22T15:00:29Z,2026-06-22T15:00:32Z
+GET,/orders [admin list],CatchResponseError(0),7,2026-06-22T15:00:09Z,2026-06-22T15:00:32Z
+GET,/products?[filters],CatchResponseError(0),101,2026-06-22T15:00:01Z,2026-06-22T15:00:45Z
+GET,/admin/users?page=3&limit=20,CatchResponseError(0),1,2026-06-22T15:00:29Z,2026-06-22T15:00:29Z
+GET,/admin/users?page=2&limit=20,CatchResponseError(0),1,2026-06-22T15:00:31Z,2026-06-22T15:00:31Z
+GET,/admin/stats,CatchResponseError(0),7,2026-06-22T15:00:06Z,2026-06-22T15:00:42Z
+GET,/admin/users?page=5&limit=20&is_active=true,CatchResponseError(0),1,2026-06-22T15:00:29Z,2026-06-22T15:00:29Z
+GET,/products/<id>,CatchResponseError(0),40,2026-06-22T15:00:01Z,2026-06-22T15:00:42Z
