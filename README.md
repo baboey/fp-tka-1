@@ -85,6 +85,8 @@ Kami menerapkan pendekatan **bertahap** sesuai best practice — *start small, o
 
 ### A. Diagram Arsitektur — Google Cloud Platform
 
+> **File draw.io:** [`image/architecture.drawio`](image/architecture.drawio) — buka di [diagrams.net](https://app.diagrams.net/) untuk versi interaktif dan ekspor PNG resolusi tinggi.
+
 ```mermaid
 graph TB
     CLIENT["User / Client<br/>Browser"]
@@ -660,22 +662,25 @@ ghi789...      tka_nginx     replicated   1/1        nginx:alpine
 
 Sesuai ketentuan soal: *"Hapus isi database yang di-insert di setiap skenario pengujian agar tidak terjadi akumulasi data. Tidak diperkenankan hapus isi database awal."*
 
-`mongorestore --drop` me-restore seluruh koleksi ke kondisi **seed data awal** (505 users, 96 produk, 10.000 orders bawaan) tanpa menyisakan data dari skenario sebelumnya. Command yang dijalankan dari `tka-vm4-mongodb` **sebelum setiap skenario**:
+Prosedur reset dijalankan **sebelum setiap skenario (S1 → S2 → S3 → S4 → S5)**. `mongorestore --drop` me-restore seluruh koleksi ke kondisi **seed data awal** (505 users, 96 produk, 10.000 orders bawaan) tanpa menyisakan orders yang diinsert skenario sebelumnya:
 
 ```bash
-# Dijalankan di tka-vm4-mongodb sebelum setiap skenario Locust
+# Dijalankan di tka-vm4-mongodb SEBELUM setiap skenario
 docker exec mongodb mongorestore \
   -u root -p root --authenticationDatabase admin \
   --drop /dump/
 ```
 
-Verifikasi reset berhasil (jumlah dokumen kembali ke seed awal):
+Verifikasi reset berhasil sebelum memulai skenario berikutnya:
 
 ```bash
 docker exec mongodb mongosh -u root -p root --authenticationDatabase admin \
   --eval 'db = db.getSiblingDB("orderdb"); print("orders:", db.orders.countDocuments(), "users:", db.users.countDocuments())'
-# Output: orders: 10000 users: 505
+# Output yang diharapkan: orders: 10000 users: 505
 ```
+
+> [!NOTE]
+> Reset dilakukan antar **skenario** (5 kali reset total: sebelum S1, S2, S3, S4, S5). Di dalam setiap skenario, progressive load testing (misalnya S2: 500 → 1000 → 1500 → 2000 users) merupakan **satu sesi pengujian berkelanjutan** untuk menemukan titik failure — bukan skenario terpisah, sehingga tidak memerlukan reset tambahan. Akumulasi orders dalam satu sesi justru merepresentasikan kondisi produksi nyata (database yang terus tumbuh).
 
 ---
 
