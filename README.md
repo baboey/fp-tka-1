@@ -87,32 +87,32 @@ Kami menerapkan pendekatan **bertahap** sesuai best practice — *start small, o
 
 ```mermaid
 graph TB
-    CLIENT["<b>User / Client</b><br/>Browser"]
-    
-    subgraph GCP["<b>Google Cloud Platform</b> — Region: asia-southeast1-a"]
+    CLIENT["User / Client<br/>Browser"]
+
+    subgraph GCP["Google Cloud Platform - Region: asia-southeast1-a"]
         direction TB
 
-        subgraph MANAGER["<b>tka-vm1-manager</b><br/>e2-medium · 2 vCPU · 4 GB RAM<br/>IP: 10.148.0.8"]
-            NGINX["<b>Nginx</b><br/>Reverse Proxy · Load Balancer<br/>Microcache 5s · Gzip"]
-            REDIS["<b>Redis 7</b><br/>Application Cache<br/>512 MB · LRU Eviction"]
-            FE["<b>Frontend</b><br/>Static HTML/CSS"]
+        subgraph MANAGER["tka-vm1-manager<br/>e2-medium - 2 vCPU - 4 GB RAM<br/>IP: 10.148.0.8"]
+            NGINX["Nginx<br/>Reverse Proxy + Load Balancer<br/>Microcache 30s + Gzip"]
+            REDIS["Redis 7<br/>Application Cache<br/>512 MB - LRU Eviction"]
+            FE["Frontend<br/>Static HTML/CSS"]
         end
 
-        subgraph WORKER1["<b>tka-vm2-flaskworker</b><br/>e2-medium · 2 vCPU · 4 GB RAM<br/>IP: 10.148.0.4"]
-            FLASK1["<b>Flask + Gunicorn</b><br/>5 workers × 4 threads<br/>Docker Swarm Replicas"]
+        subgraph WORKER1["tka-vm2-flaskworker<br/>e2-medium - 2 vCPU - 4 GB RAM<br/>IP: 10.148.0.4"]
+            FLASK1["Flask + Gunicorn<br/>5 workers x 4 threads"]
         end
 
-        subgraph WORKER2["<b>tka-vm3-flaskworker</b><br/>e2-small · 2 vCPU · 2 GB RAM<br/>IP: 10.148.0.5"]
-            FLASK2["<b>Flask + Gunicorn</b><br/>5 workers × 4 threads<br/>Docker Swarm Replicas"]
+        subgraph WORKER2["tka-vm3-flaskworker<br/>e2-small - 2 vCPU - 2 GB RAM<br/>IP: 10.148.0.5"]
+            FLASK2["Flask + Gunicorn<br/>5 workers x 4 threads"]
         end
 
-        subgraph DATABASE["<b>tka-vm4-mongodb</b><br/>e2-small · 2 vCPU · 2 GB RAM<br/>IP: 10.148.0.6"]
-            MONGO["<b>MongoDB 7.0</b><br/>Standalone · Indexed Collections<br/>Private Network Only"]
+        subgraph DATABASE["tka-vm4-mongodb<br/>e2-small - 2 vCPU - 2 GB RAM<br/>IP: 10.148.0.6"]
+            MONGO["MongoDB 7.0<br/>Standalone - Indexed Collections<br/>Private Network Only"]
         end
     end
 
-    subgraph TESTER["<b>tka-vm5-locust</b><br/>e2-small · 2 vCPU · 2 GB RAM<br/>IP: 10.148.0.7 — HOST TERPISAH"]
-        LOCUST["<b>Locust 2.44</b><br/>Load Testing"]
+    subgraph TESTER["tka-vm5-locust<br/>e2-small - 2 vCPU - 2 GB RAM<br/>IP: 10.148.0.7 - HOST TERPISAH"]
+        LOCUST["Locust 2.44<br/>Load Testing"]
     end
 
     CLIENT -- "HTTP Port 80" --> NGINX
@@ -120,19 +120,19 @@ graph TB
 
     NGINX -- "Round-robin<br/>Upstream" --> FLASK1
     NGINX -- "Round-robin<br/>Upstream" --> FLASK2
-    NGINX -. "Cache HIT<br/>/products (5s TTL)" .-> REDIS
+    NGINX -. "Cache HIT<br/>/products 30s TTL" .-> REDIS
 
     FLASK1 -- "MONGO_URI<br/>10.148.0.6:27017" --> MONGO
     FLASK2 -- "MONGO_URI<br/>10.148.0.6:27017" --> MONGO
-    FLASK1 -. "Redis Cache<br/>/admin/stats" .-> REDIS
-    FLASK2 -. "Redis Cache<br/>/admin/stats" .-> REDIS
+    FLASK1 -. "Redis Cache<br/>/auth/login + /admin/stats" .-> REDIS
+    FLASK2 -. "Redis Cache<br/>/auth/login + /admin/stats" .-> REDIS
 
-    style GCP fill:#e8f0fe,stroke:#4285F4,stroke-width:2px
-    style MANAGER fill:#fff3e0,stroke:#F9AB00,stroke-width:2px
-    style WORKER1 fill:#e8f5e9,stroke:#34A853,stroke-width:2px
-    style WORKER2 fill:#e8f5e9,stroke:#34A853,stroke-width:2px
-    style DATABASE fill:#fce4ec,stroke:#EA4335,stroke-width:2px
-    style TESTER fill:#f3e5f5,stroke:#9C27B0,stroke-width:2px
+    style GCP fill:#4285F4,stroke:#1a56db,stroke-width:2px,color:#fff
+    style MANAGER fill:#F9AB00,stroke:#c67c00,stroke-width:2px,color:#000
+    style WORKER1 fill:#34A853,stroke:#1e7e34,stroke-width:2px,color:#fff
+    style WORKER2 fill:#34A853,stroke:#1e7e34,stroke-width:2px,color:#fff
+    style DATABASE fill:#EA4335,stroke:#c5221f,stroke-width:2px,color:#fff
+    style TESTER fill:#9C27B0,stroke:#7b1fa2,stroke-width:2px,color:#fff
 ```
 
 ### B. Tabel Spesifikasi dan Biaya VM
@@ -163,11 +163,11 @@ Arsitektur ini dirancang untuk memaksimalkan **RPS per dollar** dalam batasan bu
 #### C.1 Alokasi Budget yang Optimal
 
 ```mermaid
-pie title Alokasi Budget ($73.38 dari $75)
-    "VM1 — Nginx + Redis + Manager" : 24.46
-    "VM2 — Flask Worker (Primary)" : 24.46
-    "VM3 — Flask Worker (Secondary)" : 12.23
-    "VM4 — MongoDB Database" : 12.23
+pie title Alokasi Budget per Bulan
+    "VM1 - Nginx + Redis + Manager" : 24.46
+    "VM2 - Flask Worker Primary" : 24.46
+    "VM3 - Flask Worker Secondary" : 12.23
+    "VM4 - MongoDB Database" : 12.23
 ```
 
 | Aspek | Analisis Optimalitas |
@@ -193,22 +193,22 @@ pie title Alokasi Budget ($73.38 dari $75)
 Arsitektur ini menerapkan **8 lapis optimasi**
 ```mermaid
 graph LR
-    A["<b>Layer 1</b><br/>Nginx Microcache<br/>GET /products<br/>TTL 30 detik"] --> B["<b>Layer 2</b><br/>Redis Session Cache<br/>/auth/login<br/>Bypass bcrypt"]
-    B --> C["<b>Layer 3</b><br/>Redis Stats Cache<br/>/admin/stats<br/>TTL 30 detik"]
-    C --> D["<b>Layer 4</b><br/>Nginx Keepalive<br/>TCP Reuse<br/>32 connections"]
-    D --> E["<b>Layer 5</b><br/>Gzip Compression<br/>Payload -60%"]
-    E --> F["<b>Layer 6</b><br/>Gunicorn WSGI<br/>5w × 4t per VM"]
-    F --> G["<b>Layer 7</b><br/>MongoDB Indexing<br/>IXSCAN vs COLLSCAN"]
-    G --> H["<b>Layer 8</b><br/>Connection Pooling<br/>maxPool=100"]
+    A["Layer 1<br/>Nginx Microcache<br/>GET /products<br/>TTL 30 detik"] --> B["Layer 2<br/>Redis Session Cache<br/>/auth/login<br/>Bypass bcrypt"]
+    B --> C["Layer 3<br/>Redis Stats Cache<br/>/admin/stats<br/>TTL 30 detik"]
+    C --> D["Layer 4<br/>Nginx Keepalive<br/>TCP Reuse<br/>32 connections"]
+    D --> E["Layer 5<br/>Gzip Compression<br/>Payload -60%"]
+    E --> F["Layer 6<br/>Gunicorn WSGI<br/>5w x 4t per VM"]
+    F --> G["Layer 7<br/>MongoDB Indexing<br/>IXSCAN vs COLLSCAN"]
+    G --> H["Layer 8<br/>Connection Pooling<br/>maxPool=100"]
 
-    style A fill:#e3f2fd,stroke:#1565C0
-    style B fill:#fce4ec,stroke:#C62828
-    style C fill:#fce4ec,stroke:#C62828
-    style D fill:#e8f5e9,stroke:#2E7D32
-    style E fill:#e8f5e9,stroke:#2E7D32
-    style F fill:#fff8e1,stroke:#F57F17
-    style G fill:#f3e5f5,stroke:#7B1FA2
-    style H fill:#e0f2f1,stroke:#00695C
+    style A fill:#1565C0,stroke:#0d47a1,color:#fff
+    style B fill:#C62828,stroke:#b71c1c,color:#fff
+    style C fill:#C62828,stroke:#b71c1c,color:#fff
+    style D fill:#2E7D32,stroke:#1b5e20,color:#fff
+    style E fill:#2E7D32,stroke:#1b5e20,color:#fff
+    style F fill:#F57F17,stroke:#e65100,color:#000
+    style G fill:#7B1FA2,stroke:#4a148c,color:#fff
+    style H fill:#00695C,stroke:#004d40,color:#fff
 ```
 | Layer | Teknologi | Dampak terhadap RPS | Penjelasan |
 |:-----:|-----------|:-------------------:|------------|
@@ -225,16 +225,16 @@ graph LR
 
 ```mermaid
 graph LR
-    subgraph STATELESS["Tier Stateless (Docker Swarm)"]
+    subgraph STATELESS["Tier Stateless - Docker Swarm"]
         N["Nginx"] --> F["Flask Replicas"]
     end
-    subgraph STATEFUL["Tier Stateful (Standalone)"]
+    subgraph STATEFUL["Tier Stateful - Standalone"]
         M["MongoDB"]
     end
     STATELESS --> STATEFUL
 
-    style STATELESS fill:#e8f5e9,stroke:#2E7D32
-    style STATEFUL fill:#fce4ec,stroke:#C62828
+    style STATELESS fill:#2E7D32,stroke:#1b5e20,color:#fff
+    style STATEFUL fill:#C62828,stroke:#b71c1c,color:#fff
 ```
 
 | Prinsip | Implementasi | Dampak |
@@ -777,7 +777,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 | **Locustfile** | [`src/locust/locustfile.py`](src/locust/locustfile.py) |
 | **Traffic Pattern** | 80% CustomerUser (browse, order) + 20% AdminUser (stats, manage) |
 | **Database Reset** | `reset_db.sh` dijalankan **sebelum setiap skenario** |
-| **Flask Replicas** | 6 replicas (distributed across vm2 dan vm3) |
+| **Flask Replicas** | 3 replicas (distributed across vm2 dan vm3 via Docker Swarm) |
 
 ### Skenario 1 — Maksimum RPS (0% Failure)
 
