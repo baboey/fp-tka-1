@@ -356,7 +356,7 @@ Setiap VM dikonfigurasi dengan:
 
 > **Screenshot:**
 >
-> `[screenshot: Daftar 5 VM instances yang Running di GCP Console]`
+> ![GCP VM Instances](image/GCP%20Console%20VM%20list.png)
 
 ---
 
@@ -377,7 +377,7 @@ Playbook ini melakukan:
 
 > **Screenshot:**
 >
-> `[screenshot: Output ansible-playbook provision.yml — semua task OK]`
+> ![Arsitektur Deployment](image/architecture.png)
 
 ---
 
@@ -400,7 +400,7 @@ Swarm menggunakan **overlay network** untuk komunikasi antar-container lintas no
 
 > **Screenshot:**
 >
-> `[screenshot: docker node ls menunjukkan 3 nodes Ready]`
+> ![Docker Node LS](image/docker-node-ls.png)
 
 ---
 
@@ -654,7 +654,7 @@ ghi789...      tka_nginx     replicated   1/1        nginx:alpine
 
 > **Screenshot:**
 >
-> `[screenshot: docker service ls menunjukkan semua replicas Running]`
+> ![Docker Service LS](image/docker-service-ls.png)
 
 ---
 
@@ -728,7 +728,7 @@ Content-Type: application/json
 
 > **Screenshot:**
 >
-> `[screenshot: Postman — POST /order → 201 Created]`
+> ![Postman POST Order](image/postman-create-order.png)
 
 ---
 
@@ -768,7 +768,7 @@ GET http://34.87.110.32/order/e3ae69ee-188b-4187-a8ac-3631e8257b15
 
 > **Screenshot:**
 >
-> `[screenshot: Postman — GET /order/<id> → 200 OK]`
+> ![Postman GET Order](image/postman-get-order.png)
 
 ---
 
@@ -799,7 +799,7 @@ GET http://34.87.110.32/orders?limit=10
 
 > **Screenshot:**
 >
-> `[screenshot: Postman — GET /orders → 200 OK (array of orders)]`
+> ![Postman GET Orders](image/postman-get-orders.png)
 
 ---
 
@@ -828,7 +828,7 @@ Content-Type: application/json
 
 > **Screenshot:**
 >
-> `[screenshot: Postman — PUT /order/<id> → 200 OK (status updated)]`
+> ![Postman PUT Order](image/postman-update-order.png)
 
 ---
 
@@ -849,7 +849,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > **Screenshot:**
 >
-> `[screenshot: Tampilan antarmuka frontend Order Processing Service di browser]`
+> ![Frontend Order Processing Service](image/Frontend%20browser.png)
 
 ---
 
@@ -891,9 +891,9 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > **Screenshot:**
 >
-> `[screenshot: Locust Skenario 1 — grafik RPS, response time, failure rate]`
+> ![Locust Skenario 1](image/locust-s1.png)
 >
-> `[screenshot: htop/resource utilization VM saat skenario 1]`
+> ![htop VM1](image/htop-vm1.png)
 
 ---
 
@@ -927,7 +927,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > **Screenshot:**
 >
-> `[screenshot: Locust Skenario 2 — grafik RPS, response time, failure rate]`
+> ![Locust Skenario 2](image/locust-s2.png)
 
 ---
 
@@ -962,7 +962,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > **Screenshot:**
 >
-> `[screenshot: Locust Skenario 3 — grafik RPS, response time, failure rate]`
+> ![Locust Skenario 3](image/locust-s3.png)
 
 ---
 
@@ -1000,7 +1000,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > **Screenshot:**
 >
-> `[screenshot: Locust Skenario 4 — grafik RPS, response time, failure rate]`
+> ![Locust Skenario 4](image/locust-s4.png)
 
 ---
 
@@ -1038,7 +1038,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > **Screenshot:**
 >
-> `[screenshot: Locust Skenario 5 — grafik RPS, response time, failure rate]`
+> ![Locust Skenario 5](image/locust-s5.png)
 
 ---
 
@@ -1094,13 +1094,13 @@ Observasi penting:
 
 > **Screenshot:**
 >
-> `[screenshot: htop di tka-vm1-manager saat skenario 5]`
+> ![htop tka-vm1-manager](image/htop-vm1.png)
 >
-> `[screenshot: htop di tka-vm2-flaskworker saat skenario 5]`
+> ![htop tka-vm2-flaskworker](image/htop-vm2.png)
 >
-> `[screenshot: htop di tka-vm3-flaskworker saat skenario 5]`
+> ![htop tka-vm3-flaskworker](image/htop-vm3.png)
 >
-> `[screenshot: htop di tka-vm4-mongodb saat skenario 5]`
+> ![htop tka-vm4-mongodb](image/htop-vm4.png)
 
 ---
 
