@@ -127,12 +127,21 @@ graph TB
     FLASK1 -. "Redis Cache<br/>/auth/login + /admin/stats" .-> REDIS
     FLASK2 -. "Redis Cache<br/>/auth/login + /admin/stats" .-> REDIS
 
-    style GCP fill:none,stroke:#4285F4,stroke-width:2px
-    style MANAGER fill:none,stroke:#F9AB00,stroke-width:2px
-    style WORKER1 fill:none,stroke:#34A853,stroke-width:2px
-    style WORKER2 fill:none,stroke:#34A853,stroke-width:2px
-    style DATABASE fill:none,stroke:#EA4335,stroke-width:2px
-    style TESTER fill:none,stroke:#9C27B0,stroke-width:2px
+    style GCP fill:none,stroke:#4285F4,stroke-width:2px,stroke-dasharray: 5 5
+    style MANAGER fill:none,stroke:#F9AB00,stroke-width:1.5px
+    style WORKER1 fill:none,stroke:#34A853,stroke-width:1.5px
+    style WORKER2 fill:none,stroke:#34A853,stroke-width:1.5px
+    style DATABASE fill:none,stroke:#EA4335,stroke-width:1.5px
+    style TESTER fill:none,stroke:#9C27B0,stroke-width:1.5px
+
+    style CLIENT fill:#2a2a2a,stroke:#cccccc,stroke-width:1.5px,color:#fff
+    style LOCUST fill:#2d1a3d,stroke:#9C27B0,stroke-width:1.5px,color:#fff
+    style NGINX fill:#1b305a,stroke:#4285F4,stroke-width:1.5px,color:#fff
+    style REDIS fill:#4d2c00,stroke:#F9AB00,stroke-width:1.5px,color:#fff
+    style FE fill:#2a2a2a,stroke:#cccccc,stroke-width:1.5px,color:#fff
+    style FLASK1 fill:#1a3d22,stroke:#34A853,stroke-width:1.5px,color:#fff
+    style FLASK2 fill:#1a3d22,stroke:#34A853,stroke-width:1.5px,color:#fff
+    style MONGO fill:#3d1a1a,stroke:#EA4335,stroke-width:1.5px,color:#fff
 
     linkStyle 0 stroke:#4285F4,stroke-width:2.5px
     linkStyle 1 stroke:#9C27B0,stroke-width:2.5px
@@ -211,22 +220,22 @@ graph LR
     F --> G["Layer 7<br/>MongoDB Indexing<br/>IXSCAN vs COLLSCAN"]
     G --> H["Layer 8<br/>Connection Pooling<br/>maxPool=100"]
 
-    style A fill:#1565C0,stroke:#0d47a1,color:#fff
-    style B fill:#C62828,stroke:#b71c1c,color:#fff
-    style C fill:#C62828,stroke:#b71c1c,color:#fff
-    style D fill:#2E7D32,stroke:#1b5e20,color:#fff
-    style E fill:#2E7D32,stroke:#1b5e20,color:#fff
-    style F fill:#F57F17,stroke:#e65100,color:#000
-    style G fill:#7B1FA2,stroke:#4a148c,color:#fff
-    style H fill:#00695C,stroke:#004d40,color:#fff
+    style A fill:#1b305a,stroke:#4285F4,stroke-width:1.5px,color:#fff
+    style B fill:#4d2c00,stroke:#F9AB00,stroke-width:1.5px,color:#fff
+    style C fill:#4d2c00,stroke:#F9AB00,stroke-width:1.5px,color:#fff
+    style D fill:#1b305a,stroke:#4285F4,stroke-width:1.5px,color:#fff
+    style E fill:#1b305a,stroke:#4285F4,stroke-width:1.5px,color:#fff
+    style F fill:#1a3d22,stroke:#34A853,stroke-width:1.5px,color:#fff
+    style G fill:#3d1a1a,stroke:#EA4335,stroke-width:1.5px,color:#fff
+    style H fill:#123d3d,stroke:#00A896,stroke-width:1.5px,color:#fff
 
-    linkStyle 0 stroke:#1565C0,stroke-width:2.5px
-    linkStyle 1 stroke:#C62828,stroke-width:2.5px
-    linkStyle 2 stroke:#C62828,stroke-width:2.5px
-    linkStyle 3 stroke:#2E7D32,stroke-width:2.5px
-    linkStyle 4 stroke:#2E7D32,stroke-width:2.5px
-    linkStyle 5 stroke:#F57F17,stroke-width:2.5px
-    linkStyle 6 stroke:#7B1FA2,stroke-width:2.5px
+    linkStyle 0 stroke:#4285F4,stroke-width:2.5px
+    linkStyle 1 stroke:#F9AB00,stroke-width:2.5px
+    linkStyle 2 stroke:#F9AB00,stroke-width:2.5px
+    linkStyle 3 stroke:#4285F4,stroke-width:2.5px
+    linkStyle 4 stroke:#4285F4,stroke-width:2.5px
+    linkStyle 5 stroke:#34A853,stroke-width:2.5px
+    linkStyle 6 stroke:#EA4335,stroke-width:2.5px
 ```
 | Layer | Teknologi | Dampak terhadap RPS | Penjelasan |
 |:-----:|-----------|:-------------------:|------------|
@@ -251,10 +260,14 @@ graph LR
     end
     STATELESS --> STATEFUL
 
-    style STATELESS fill:none,stroke:#2E7D32,stroke-width:2px
-    style STATEFUL fill:none,stroke:#C62828,stroke-width:2px
+    style STATELESS fill:none,stroke:#34A853,stroke-width:1.5px
+    style STATEFUL fill:none,stroke:#EA4335,stroke-width:1.5px
 
-    linkStyle 0 stroke:#2E7D32,stroke-width:2.5px
+    style N fill:#1b305a,stroke:#4285F4,stroke-width:1.5px,color:#fff
+    style F fill:#1a3d22,stroke:#34A853,stroke-width:1.5px,color:#fff
+    style M fill:#3d1a1a,stroke:#EA4335,stroke-width:1.5px,color:#fff
+
+    linkStyle 0 stroke:#34A853,stroke-width:2.5px
     linkStyle 1 stroke:#EA4335,stroke-width:2.5px
 ```
 
