@@ -201,10 +201,7 @@
 
     - name: Wait for services to start
       pause:
-        seconds: 20
-
-    - name: Scale Flask service
-      command: docker service scale tka_flask=6
+        seconds: 30
 
     - name: List services
       command: docker service ls

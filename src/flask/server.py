@@ -340,6 +340,12 @@ def update_product(product_id):
         return err("product_id tidak valid")
     if result.matched_count == 0:
         return err("Produk tidak ditemukan", 404)
+    # Invalidasi cache produk agar data stale tidak digunakan
+    if rcache:
+        try:
+            rcache.delete(f"prod:{product_id}")
+        except Exception:
+            pass
     write_log("update_product", "products", product_id, updates)
     return jsonify({"message": "Produk diperbarui", "product_id": product_id})
 
@@ -354,6 +360,11 @@ def delete_product(product_id):
         return err("product_id tidak valid")
     if result.matched_count == 0:
         return err("Produk tidak ditemukan", 404)
+    if rcache:
+        try:
+            rcache.delete(f"prod:{product_id}")
+        except Exception:
+            pass
     write_log("delete_product", "products", product_id)
     return jsonify({"message": "Produk dinonaktifkan"})
 
@@ -368,7 +379,16 @@ def create_order():
     if not d.get("items") or not isinstance(d["items"], list) or len(d["items"]) == 0:
         return err("Field 'items' wajib diisi dan tidak boleh kosong")
 
-    user = users_col.find_one({"_id": ObjectId(g.user_id)}, {"password": 0})
+    # Cache user data (name, email, city, address) — stable, TTL 5 menit
+    user_key = f"user:{g.user_id}"
+    user = cache_get(user_key)
+    if user is None:
+        user_doc = users_col.find_one({"_id": ObjectId(g.user_id)}, {"password": 0})
+        if user_doc:
+            user = serialize(user_doc)
+            cache_set(user_key, user, ttl=300)
+    if not user:
+        return err("User tidak ditemukan", 404)
 
     # Validasi & hitung item
     order_items = []
@@ -376,21 +396,38 @@ def create_order():
     for item in d["items"]:
         if not item.get("product_id") or not item.get("qty"):
             return err("Setiap item harus memiliki product_id dan qty")
-        try:
-            prod = prods_col.find_one({"_id": ObjectId(item["product_id"]), "is_active": True})
-        except Exception:
-            return err(f"product_id tidak valid: {item.get('product_id')}")
-        if not prod:
-            return err(f"Produk tidak ditemukan: {item.get('product_id')}", 404)
         qty = int(item["qty"])
         if qty < 1:
             return err("qty minimal 1")
-        if prod["stock"] < qty:
-            return err(f"Stok tidak cukup untuk produk: {prod['name']}")
+
+        # Cache product base data (name, price, category) — tidak termasuk stock
+        # Stock dicek & dikurangi secara atomik via update_one di bawah
+        prod_key = f"prod:{item['product_id']}"
+        prod = cache_get(prod_key)
+        if prod is None:
+            try:
+                prod_doc = prods_col.find_one(
+                    {"_id": ObjectId(item["product_id"]), "is_active": True},
+                    {"name": 1, "category": 1, "price": 1}
+                )
+            except Exception:
+                return err(f"product_id tidak valid: {item.get('product_id')}")
+            if not prod_doc:
+                return err(f"Produk tidak ditemukan: {item.get('product_id')}", 404)
+            prod = serialize(prod_doc)
+            cache_set(prod_key, prod, ttl=60)
+
+        # Atomik: kurangi stok HANYA jika stok mencukupi (1 MongoDB op, bukan 2)
+        result = prods_col.update_one(
+            {"_id": ObjectId(item["product_id"]), "is_active": True, "stock": {"$gte": qty}},
+            {"$inc": {"stock": -qty}}
+        )
+        if result.matched_count == 0:
+            return err(f"Stok tidak cukup untuk produk: {prod.get('name', item['product_id'])}")
 
         s = prod["price"] * qty
         order_items.append({
-            "product_id":   prod["_id"],
+            "product_id":   item["product_id"],
             "product_name": prod["name"],
             "category":     prod["category"],
             "qty":          qty,
@@ -398,9 +435,6 @@ def create_order():
             "subtotal":     s,
         })
         subtotal += s
-
-        # Kurangi stok
-        prods_col.update_one({"_id": prod["_id"]}, {"$inc": {"stock": -qty}})
 
     shipping = int(d.get("shipping_cost", 0))
     total    = subtotal + shipping
