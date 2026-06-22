@@ -89,29 +89,29 @@ Kami menerapkan pendekatan **bertahap** sesuai best practice — *start small, o
 graph TB
     CLIENT["User / Client<br/>Browser"]
 
-    subgraph GCP["Google Cloud Platform - Region: asia-southeast1-a"]
+    subgraph GCP["Google Cloud Platform (asia-southeast1-a)"]
         direction TB
 
-        subgraph MANAGER["tka-vm1-manager<br/>e2-medium - 2 vCPU - 4 GB RAM<br/>IP: 10.148.0.8"]
+        subgraph MANAGER["tka-vm1-manager | 10.148.0.8 | e2-medium (2 vCPU, 4 GB RAM)"]
             NGINX["Nginx<br/>Reverse Proxy + Load Balancer<br/>Microcache 30s + Gzip"]
             REDIS["Redis 7<br/>Application Cache<br/>512 MB - LRU Eviction"]
             FE["Frontend<br/>Static HTML/CSS"]
         end
 
-        subgraph WORKER1["tka-vm2-flaskworker<br/>e2-medium - 2 vCPU - 4 GB RAM<br/>IP: 10.148.0.4"]
+        subgraph WORKER1["tka-vm2-flaskworker | 10.148.0.4 | e2-medium (2 vCPU, 4 GB RAM)"]
             FLASK1["Flask + Gunicorn<br/>5 workers x 4 threads"]
         end
 
-        subgraph WORKER2["tka-vm3-flaskworker<br/>e2-small - 2 vCPU - 2 GB RAM<br/>IP: 10.148.0.5"]
+        subgraph WORKER2["tka-vm3-flaskworker | 10.148.0.5 | e2-small (2 vCPU, 2 GB RAM)"]
             FLASK2["Flask + Gunicorn<br/>5 workers x 4 threads"]
         end
 
-        subgraph DATABASE["tka-vm4-mongodb<br/>e2-small - 2 vCPU - 2 GB RAM<br/>IP: 10.148.0.6"]
+        subgraph DATABASE["tka-vm4-mongodb | 10.148.0.6 | e2-small (2 vCPU, 2 GB RAM)"]
             MONGO["MongoDB 7.0<br/>Standalone - Indexed Collections<br/>Private Network Only"]
         end
     end
 
-    subgraph TESTER["tka-vm5-locust<br/>e2-small - 2 vCPU - 2 GB RAM<br/>IP: 10.148.0.7 - HOST TERPISAH"]
+    subgraph TESTER["tka-vm5-locust | 10.148.0.7 | e2-small (Host Terpisah)"]
         LOCUST["Locust 2.44<br/>Load Testing"]
     end
 
@@ -127,12 +127,22 @@ graph TB
     FLASK1 -. "Redis Cache<br/>/auth/login + /admin/stats" .-> REDIS
     FLASK2 -. "Redis Cache<br/>/auth/login + /admin/stats" .-> REDIS
 
-    style GCP fill:#4285F4,stroke:#1a56db,stroke-width:2px,color:#fff
-    style MANAGER fill:#F9AB00,stroke:#c67c00,stroke-width:2px,color:#000
-    style WORKER1 fill:#34A853,stroke:#1e7e34,stroke-width:2px,color:#fff
-    style WORKER2 fill:#34A853,stroke:#1e7e34,stroke-width:2px,color:#fff
-    style DATABASE fill:#EA4335,stroke:#c5221f,stroke-width:2px,color:#fff
-    style TESTER fill:#9C27B0,stroke:#7b1fa2,stroke-width:2px,color:#fff
+    style GCP fill:none,stroke:#4285F4,stroke-width:2px
+    style MANAGER fill:none,stroke:#F9AB00,stroke-width:2px
+    style WORKER1 fill:none,stroke:#34A853,stroke-width:2px
+    style WORKER2 fill:none,stroke:#34A853,stroke-width:2px
+    style DATABASE fill:none,stroke:#EA4335,stroke-width:2px
+    style TESTER fill:none,stroke:#9C27B0,stroke-width:2px
+
+    linkStyle 0 stroke:#4285F4,stroke-width:2.5px
+    linkStyle 1 stroke:#9C27B0,stroke-width:2.5px
+    linkStyle 2 stroke:#34A853,stroke-width:2.5px
+    linkStyle 3 stroke:#34A853,stroke-width:2.5px
+    linkStyle 4 stroke:#F9AB00,stroke-width:2.5px
+    linkStyle 5 stroke:#EA4335,stroke-width:2.5px
+    linkStyle 6 stroke:#EA4335,stroke-width:2.5px
+    linkStyle 7 stroke:#F9AB00,stroke-width:2.5px
+    linkStyle 8 stroke:#F9AB00,stroke-width:2.5px
 ```
 
 ### B. Tabel Spesifikasi dan Biaya VM
@@ -209,6 +219,14 @@ graph LR
     style F fill:#F57F17,stroke:#e65100,color:#000
     style G fill:#7B1FA2,stroke:#4a148c,color:#fff
     style H fill:#00695C,stroke:#004d40,color:#fff
+
+    linkStyle 0 stroke:#1565C0,stroke-width:2.5px
+    linkStyle 1 stroke:#C62828,stroke-width:2.5px
+    linkStyle 2 stroke:#C62828,stroke-width:2.5px
+    linkStyle 3 stroke:#2E7D32,stroke-width:2.5px
+    linkStyle 4 stroke:#2E7D32,stroke-width:2.5px
+    linkStyle 5 stroke:#F57F17,stroke-width:2.5px
+    linkStyle 6 stroke:#7B1FA2,stroke-width:2.5px
 ```
 | Layer | Teknologi | Dampak terhadap RPS | Penjelasan |
 |:-----:|-----------|:-------------------:|------------|
@@ -233,8 +251,11 @@ graph LR
     end
     STATELESS --> STATEFUL
 
-    style STATELESS fill:#2E7D32,stroke:#1b5e20,color:#fff
-    style STATEFUL fill:#C62828,stroke:#b71c1c,color:#fff
+    style STATELESS fill:none,stroke:#2E7D32,stroke-width:2px
+    style STATEFUL fill:none,stroke:#C62828,stroke-width:2px
+
+    linkStyle 0 stroke:#2E7D32,stroke-width:2.5px
+    linkStyle 1 stroke:#EA4335,stroke-width:2.5px
 ```
 
 | Prinsip | Implementasi | Dampak |
