@@ -87,6 +87,8 @@ Kami menerapkan pendekatan **bertahap** sesuai best practice — *start small, o
 
 > **File draw.io:** [`image/architecture.drawio`](image/architecture.drawio) — buka di [diagrams.net](https://app.diagrams.net/) untuk versi interaktif dan ekspor PNG resolusi tinggi.
 
+![Arsitektur Cloud GCP](image/architecture.png)
+
 ```mermaid
 graph TB
     CLIENT["User / Client<br/>Browser"]
@@ -374,10 +376,6 @@ Playbook ini melakukan:
 - Konfigurasi user permission untuk menjalankan Docker tanpa `sudo`
 - Setup insecure registry untuk private Docker registry di manager node
 - Restart Docker daemon dengan konfigurasi baru
-
-> **Screenshot:**
->
-> ![Arsitektur Deployment](image/architecture.png)
 
 ---
 
