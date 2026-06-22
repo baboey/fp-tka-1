@@ -87,7 +87,11 @@ Kami menerapkan pendekatan **bertahap** sesuai best practice — *start small, o
 
 > **File draw.io:** [`image/architecture.drawio`](image/architecture.drawio) — buka di [diagrams.net](https://app.diagrams.net/) untuk versi interaktif dan ekspor PNG resolusi tinggi.
 
+**Diagram Visual (draw.io export):**
+
 ![Arsitektur Cloud GCP](image/architecture.png)
+
+**Diagram Teknis (koneksi, IP, port, protocol):**
 
 ```mermaid
 graph TB
