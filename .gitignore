@@ -223,3 +223,6 @@ test/
 # Course resources and instructions
 Keterangan Final Project TKA/
 
+# VM specification notes (contains sensitive SSH keys)
+spek.md
+

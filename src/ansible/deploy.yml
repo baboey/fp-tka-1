@@ -1,0 +1,216 @@
+---
+- name: Configure insecure registry on all Swarm nodes
+  hosts: swarm
+  become: yes
+  tasks:
+    - name: Configure Docker daemon.json
+      copy:
+        dest: /etc/docker/daemon.json
+        content: |
+          {
+            "insecure-registries": {{ docker_insecure_registries | default([]) | to_json }}
+          }
+      notify: restart docker
+      when: (docker_insecure_registries | default([])) | length > 0
+
+  handlers:
+    - name: restart docker
+      systemd:
+        name: docker
+        state: restarted
+
+- name: Setup local Docker registry on Manager
+  hosts: managers
+  become: yes
+  tasks:
+    - name: Pull registry image
+      shell: docker pull registry:2
+      when: use_local_registry | default(false) | bool
+
+    - name: Run local registry
+      shell: |
+        docker rm -f registry 2>/dev/null || true
+        docker run -d \
+          --name registry \
+          --restart always \
+          -p 5000:5000 \
+          -v /opt/registry:/var/lib/registry \
+          registry:2
+      when: use_local_registry | default(false) | bool
+
+- name: Deploy Redis cache on Manager
+  hosts: managers
+  become: yes
+  tasks:
+    - name: Run Redis container
+      shell: |
+        docker rm -f redis-cache 2>/dev/null || true
+        docker run -d \
+          --name redis-cache \
+          --restart always \
+          -p 6379:6379 \
+          redis:7-alpine \
+          redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+- name: Build and push Flask image
+  hosts: managers
+  become: yes
+  vars:
+    registry: "{{ docker_registry }}"
+    image_name: "flask-order"
+    image_tag: "latest"
+  tasks:
+    - name: Create flask directory
+      file:
+        path: /opt/flask
+        state: directory
+
+    - name: Copy Flask source to manager
+      copy:
+        src: "{{ playbook_dir }}/../flask/"
+        dest: /opt/flask/
+
+    - name: Build Flask image
+      shell: |
+        cd /opt/flask
+        docker build -t {{ registry }}/{{ image_name }}:{{ image_tag }} .
+
+    - name: Push Flask image to registry
+      shell: docker push {{ registry }}/{{ image_name }}:{{ image_tag }}
+
+- name: Deploy MongoDB standalone on N4
+  hosts: database
+  become: yes
+  tasks:
+    - name: Create MongoDB directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /opt/mongodb
+        - /opt/mongodb/dump
+
+    - name: Copy DB dump to N4
+      copy:
+        src: "{{ playbook_dir }}/../db/dump/"
+        dest: /opt/mongodb/dump/
+
+    - name: Copy init script
+      copy:
+        src: "{{ playbook_dir }}/../scripts/init_db.sh"
+        dest: /opt/mongodb/init_db.sh
+        mode: '0755'
+
+    - name: Copy reset script
+      copy:
+        src: "{{ playbook_dir }}/../scripts/reset_db.sh"
+        dest: /opt/mongodb/reset_db.sh
+        mode: '0755'
+
+    - name: Create docker-compose for MongoDB
+      copy:
+        dest: /opt/mongodb/docker-compose.yml
+        content: |
+          version: '3.8'
+          services:
+            mongo:
+              image: mongo:7.0
+              container_name: mongodb
+              restart: always
+              ports:
+                - "{{ private_ip_mongodb }}:27017:27017"
+              environment:
+                MONGO_INITDB_ROOT_USERNAME: root
+                MONGO_INITDB_ROOT_PASSWORD: root
+                MONGO_INITDB_DATABASE: orderdb
+                MONGO_USER: user
+                MONGO_PASSWORD: user
+              volumes:
+                - ./init_db.sh:/docker-entrypoint-initdb.d/init.sh:ro
+                - ./dump:/dump:ro
+                - mongo_data:/data/db
+          
+          volumes:
+            mongo_data:
+
+    - name: Start MongoDB
+      shell: |
+        cd /opt/mongodb
+        docker-compose down || true
+        docker-compose up -d
+
+    - name: Wait for MongoDB to be ready
+      wait_for:
+        host: "{{ private_ip_mongodb }}"
+        port: 27017
+        delay: 10
+        timeout: 120
+
+- name: Deploy Swarm Stack
+  hosts: managers
+  become: yes
+  vars:
+    registry: "{{ docker_registry }}"
+  tasks:
+    - name: Create nginx directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - /opt/nginx
+        - /opt/nginx/html
+
+    - name: Copy nginx swarm config
+      copy:
+        src: "{{ playbook_dir }}/../nginx/nginx-swarm.conf"
+        dest: /opt/nginx/nginx.conf
+
+    - name: Copy nginx html
+      copy:
+        src: "{{ playbook_dir }}/../nginx/html/"
+        dest: /opt/nginx/html/
+
+    - name: Copy stack file
+      copy:
+        src: "{{ playbook_dir }}/../stack.yaml"
+        dest: /opt/stack.yaml
+
+    - name: Update stack file with DB IP
+      replace:
+        path: /opt/stack.yaml
+        regexp: 'MONGO_DB_HOST'
+        replace: '{{ private_ip_mongodb }}'
+
+    - name: Update stack file with Redis IP
+      replace:
+        path: /opt/stack.yaml
+        regexp: 'REDIS_HOST'
+        replace: '{{ private_ip_redis | default(private_ip_manager) }}'
+
+    - name: Update stack file with registry
+      replace:
+        path: /opt/stack.yaml
+        regexp: 'REGISTRY_PLACEHOLDER'
+        replace: '{{ registry }}'
+
+    - name: Deploy stack
+      shell: |
+        docker stack rm tka 2>/dev/null || true
+        sleep 5
+        docker stack deploy -c /opt/stack.yaml tka
+
+    - name: Wait for services to start
+      pause:
+        seconds: 20
+
+    - name: Scale Flask service
+      command: docker service scale tka_flask=6
+
+    - name: List services
+      command: docker service ls
+      register: services
+      changed_when: false
+
+    - name: Display services
+      debug:
+        msg: "{{ services.stdout_lines }}"
