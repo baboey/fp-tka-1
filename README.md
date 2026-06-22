@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Max_RPS-196.88-brightgreen?style=for-the-badge" alt="RPS">
+  <img src="https://img.shields.io/badge/Max_RPS-221.40-brightgreen?style=for-the-badge" alt="RPS">
   <img src="https://img.shields.io/badge/Failure_Rate-0%25-success?style=for-the-badge" alt="Failure">
   <img src="https://img.shields.io/badge/Budget-$73.38_/_$75-blue?style=for-the-badge" alt="Budget">
   <img src="https://img.shields.io/badge/Peak_Users-500-orange?style=for-the-badge" alt="Users">
@@ -849,33 +849,33 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 |-----------|--------|
 | **Tool** | Locust 2.44.4 |
 | **Host Locust** | `tka-vm5-locust` (10.148.0.7) — **host TERPISAH** dari server aplikasi |
-| **Target** | `http://34.87.110.32` (External IP tka-vm1-manager — simulasi akses publik) |
+| **Target** | `http://34.87.110.32` (External IP tka-vm1-manager) |
 | **Locustfile** | [`src/locust/locustfile.py`](src/locust/locustfile.py) |
 | **Traffic Pattern** | 80% CustomerUser (browse, order) + 20% AdminUser (stats, manage) |
 | **Database Reset** | `reset_db.sh` dijalankan **sebelum setiap skenario** |
 | **Flask Replicas** | **6 replicas** (distributed across vm1-manager, vm2, vm3 via Docker Swarm) |
 
-### Skenario 1 — Low Load (10 Users)
+### Skenario 1 — Maksimum RPS (0% Failure)
 
-**Objective:** Baseline performa dengan beban ringan untuk mengukur karakteristik sistem pada kondisi ideal.
+**Objective:** Menentukan rata-rata RPS tertinggi yang dapat dicapai sistem dengan tingkat kegagalan 0%. User dinaikkan secara bertahap hingga RPS stabil.
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | 10 |
-| Spawn Rate | 5 users/s |
+| Users | **600** (dinaikkan bertahap) |
+| Spawn Rate | 50 users/s |
 | Durasi | 60 detik |
 
 **Hasil:**
 
 | Metrik | Nilai |
 |--------|------:|
-| Total Requests | **240** |
+| Total Requests | **13.098** |
 | Failure Rate | **0%** |
-| **Rata-rata RPS** | **4,07** |
-| Avg Response Time | 17,0 ms |
-| Median (P50) | 10 ms |
-| P95 Response Time | 37 ms |
-| P99 Response Time | 210 ms |
+| **Rata-rata RPS** | **221,40** |
+| Avg Response Time | 12,7 ms |
+| Median (P50) | 4 ms |
+| P95 Response Time | 63 ms |
+| P99 Response Time | 130 ms |
 
 > **Screenshot:**
 >
@@ -885,27 +885,28 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 ---
 
-### Skenario 2 — Light Load (50 Users)
+### Skenario 2 — Peak Concurrency (Spawn Rate 50)
 
-**Objective:** Mengukur performa pada beban ringan-menengah (50 concurrent users).
+**Objective:** Mencari jumlah concurrent user tertinggi yang masih dapat dilayani dengan failure 0% pada spawn rate 50 users/s.
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | 50 |
-| Spawn Rate | 25 users/s |
+| Users | **500** (dinaikkan hingga failure muncul) |
+| Spawn Rate | **50 users/s** |
 | Durasi | 60 detik |
 
 **Hasil:**
 
 | Metrik | Nilai |
 |--------|------:|
-| Total Requests | **1.165** |
+| Total Requests | **11.201** |
 | Failure Rate | **0%** |
-| Rata-rata RPS | **19,72** |
-| Avg Response Time | 12,9 ms |
+| Rata-rata RPS | 189,38 |
+| Avg Response Time | 12,6 ms |
 | Median (P50) | 4 ms |
-| P95 Response Time | 38 ms |
-| P99 Response Time | 140 ms |
+| P95 Response Time | 63 ms |
+| P99 Response Time | 150 ms |
+| **Max Concurrent Users (0% failure)** | **500** |
 
 > **Screenshot:**
 >
@@ -913,27 +914,28 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 ---
 
-### Skenario 3 — Medium Load (100 Users)
+### Skenario 3 — Peak Concurrency (Spawn Rate 100)
 
-**Objective:** Mengukur performa pada beban menengah (100 concurrent users) dan skalabilitas terhadap skenario 1-2.
+**Objective:** Mencari jumlah concurrent user tertinggi yang masih dapat dilayani dengan failure 0% pada spawn rate 100 users/s.
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | 100 |
-| Spawn Rate | 50 users/s |
+| Users | **500** (dinaikkan hingga failure muncul) |
+| Spawn Rate | **100 users/s** |
 | Durasi | 60 detik |
 
 **Hasil:**
 
 | Metrik | Nilai |
 |--------|------:|
-| Total Requests | **2.350** |
+| Total Requests | **11.597** |
 | Failure Rate | **0%** |
-| Rata-rata RPS | **39,76** |
-| Avg Response Time | 12,2 ms |
+| Rata-rata RPS | 196,06 |
+| Avg Response Time | 16,3 ms |
 | Median (P50) | 4 ms |
-| P95 Response Time | 60 ms |
-| P99 Response Time | 130 ms |
+| P95 Response Time | 84 ms |
+| P99 Response Time | 240 ms |
+| **Max Concurrent Users (0% failure)** | **500** |
 
 > **Screenshot:**
 >
@@ -941,27 +943,28 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 ---
 
-### Skenario 4 — High Load (200 Users)
+### Skenario 4 — Peak Concurrency (Spawn Rate 200)
 
-**Objective:** Mengukur performa pada beban tinggi (200 concurrent users).
+**Objective:** Mencari jumlah concurrent user tertinggi yang masih dapat dilayani dengan failure 0% pada spawn rate 200 users/s.
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | 200 |
-| Spawn Rate | 100 users/s |
+| Users | **500** (dinaikkan hingga failure muncul) |
+| Spawn Rate | **200 users/s** |
 | Durasi | 60 detik |
 
 **Hasil:**
 
 | Metrik | Nilai |
 |--------|------:|
-| Total Requests | **4.781** |
+| Total Requests | **11.270** |
 | Failure Rate | **0%** |
-| Rata-rata RPS | **80,87** |
-| Avg Response Time | 18,8 ms |
+| Rata-rata RPS | 190,50 |
+| Avg Response Time | 109,4 ms |
 | Median (P50) | 4 ms |
-| P95 Response Time | 100 ms |
-| P99 Response Time | 270 ms |
+| P95 Response Time | 140 ms |
+| P99 Response Time | 4.600 ms |
+| **Max Concurrent Users (0% failure)** | **500** |
 
 > **Screenshot:**
 >
@@ -969,27 +972,27 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 ---
 
-### Skenario 5 — Peak Load / Stress Test (500 Users)
+### Skenario 5 — Peak Concurrency (Spawn Rate 500)
 
-**Objective:** Stress test maksimal — membuktikan sistem mampu menangani 500 concurrent users dengan 0% failure dan mendapatkan RPS tertinggi.
+**Objective:** Mencari jumlah concurrent user tertinggi yang masih dapat dilayani dengan failure 0% pada spawn rate tertinggi 500 users/s (seluruh user spawn dalam 1 detik — kondisi flash sale).
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | 500 |
-| Spawn Rate | 100 users/s |
-| Durasi | 90 detik |
+| Users | **500** (dinaikkan hingga failure muncul) |
+| Spawn Rate | **500 users/s** |
+| Durasi | 60 detik |
 
 **Hasil:**
 
 | Metrik | Nilai |
 |--------|------:|
-| Total Requests | **17.584** |
+| Total Requests | **11.724** |
 | Failure Rate | **0%** |
-| **Rata-rata RPS** | **196,88** |
-| Avg Response Time | 15,6 ms |
-| Median (P50) | 5 ms |
-| P95 Response Time | 29 ms |
-| P99 Response Time | 240 ms |
+| Rata-rata RPS | 198,14 |
+| Avg Response Time | 83,2 ms |
+| Median (P50) | 4 ms |
+| P95 Response Time | 400 ms |
+| P99 Response Time | 2.000 ms |
 | **Max Concurrent Users (0% failure)** | **500** |
 
 > **Screenshot:**
@@ -1000,49 +1003,49 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 ### Ringkasan Seluruh Skenario
 
-| No | Skenario | Users | Spawn Rate | Durasi | RPS | Total Req | Failure |
-|:--:|----------|:-----:|:----------:|:------:|:---:|:---------:|:-------:|
-| 1 | Low Load | 10 | 5/s | 60s | 4,07 | 240 | **0%** |
-| 2 | Light Load | 50 | 25/s | 60s | 19,72 | 1.165 | **0%** |
-| 3 | Medium Load | 100 | 50/s | 60s | 39,76 | 2.350 | **0%** |
-| 4 | High Load | 200 | 100/s | 60s | 80,87 | 4.781 | **0%** |
-| 5 | Peak / Stress | 500 | 100/s | 90s | **196,88** | 17.584 | **0%** |
+| No | Skenario | Users | Spawn Rate | RPS | Max Concurrent (0% failure) | Failure |
+|:--:|----------|:-----:|:----------:|:---:|:---------------------------:|:-------:|
+| 1 | **Maksimum RPS** | 600 | 50/s | **221,40** | — | **0%** |
+| 2 | Peak Concurrency | 500 | 50/s | 189,38 | **500** | **0%** |
+| 3 | Peak Concurrency | 500 | 100/s | 196,06 | **500** | **0%** |
+| 4 | Peak Concurrency | 500 | 200/s | 190,50 | **500** | **0%** |
+| 5 | Peak Concurrency | 500 | 500/s | 198,14 | **500** | **0%** |
 
 ### Penilaian RPS (Sesuai Rubrik Soal)
 
-> Rata-rata RPS tertinggi dengan 0% failure = **196,88 RPS** (GCP Production)
+> Rata-rata RPS tertinggi dengan 0% failure = **221,40 RPS** (GCP Production — Skenario 1)
 >
-> **Nilai = (196,88 / 200) × 30 = 29,5 poin dari 30**
+> **Nilai = (221,40 / 200) × 30 = 30/30 poin (FULL SCORE)**
 
 ### Analisis Skalabilitas
 
 ```mermaid
 xychart-beta
-    title "RPS vs Concurrent Users (0% Failure) — GCP Production"
-    x-axis ["10 users", "50 users", "100 users", "200 users", "500 users"]
-    y-axis "Requests Per Second" 0 --> 220
-    bar [4.07, 19.72, 39.76, 80.87, 196.88]
-    line [4.07, 19.72, 39.76, 80.87, 196.88]
+    title "RPS per Skenario — GCP Production (0% Failure)"
+    x-axis ["S1: Max RPS (600u)", "S2: Spawn 50 (500u)", "S3: Spawn 100 (500u)", "S4: Spawn 200 (500u)", "S5: Spawn 500 (500u)"]
+    y-axis "Requests Per Second" 0 --> 250
+    bar [221.40, 189.38, 196.06, 190.50, 198.14]
+    line [221.40, 189.38, 196.06, 190.50, 198.14]
 ```
 
 Observasi penting:
-- **Skalabilitas linear** — RPS meningkat hampir proporsional dengan jumlah user (10x user = ~10x RPS)
-- **Median response time 4-10ms** di semua skenario — mayoritas request tetap sangat cepat
-- **0% failure di semua skenario** — sistem stabil bahkan pada beban ekstrem 500 concurrent users
-- **P99 tetap rendah** — bahkan pada 500 users, P99 hanya 240ms (jauh lebih baik dari sebelumnya)
+- **Skenario 1 (max RPS) mencapai 221,40 RPS** dengan 600 users — melampaui target 200 RPS untuk **full score 30/30**
+- **Median response time tetap 4ms** di semua skenario peak concurrency — mayoritas request dilayani sangat cepat
+- **0% failure di semua 5 skenario** — sistem stabil bahkan saat 500 users spawn sekaligus dalam 1 detik
+- **P99 spike di Skenario 4-5** — tail latency tinggi saat burst (200-500 users/s) karena inisiasi koneksi massal, namun tidak ada failure — Redis login cache meng-absorb lonjakan autentikasi
 
 ### Perbandingan Response Time
 
-| Skenario | Users | Avg | P50 (Median) | P95 | P99 | Max |
-|:--------:|:-----:|:---:|:------------:|:---:|:---:|:---:|
-| 1 | 10 | 17,0 ms | 10 ms | 37 ms | 210 ms | 408 ms |
-| 2 | 50 | 12,9 ms | 4 ms | 38 ms | 140 ms | 500 ms |
-| 3 | 100 | 12,2 ms | 4 ms | 60 ms | 130 ms | 557 ms |
-| 4 | 200 | 18,8 ms | 4 ms | 100 ms | 270 ms | 1.221 ms |
-| 5 | 500 | 15,6 ms | 5 ms | 29 ms | 240 ms | 2.212 ms |
+| Skenario | Users | Spawn Rate | Avg | P50 (Median) | P95 | P99 | Max |
+|:--------:|:-----:|:----------:|:---:|:------------:|:---:|:---:|:---:|
+| 1 (Max RPS) | 600 | 50/s | 12,7 ms | 4 ms | 63 ms | 130 ms | 1.060 ms |
+| 2 (Spawn 50) | 500 | 50/s | 12,6 ms | 4 ms | 63 ms | 150 ms | 410 ms |
+| 3 (Spawn 100) | 500 | 100/s | 16,3 ms | 4 ms | 84 ms | 240 ms | 1.035 ms |
+| 4 (Spawn 200) | 500 | 200/s | 109,4 ms | 4 ms | 140 ms | 4.600 ms | 7.645 ms |
+| 5 (Spawn 500) | 500 | 500/s | 83,2 ms | 4 ms | 400 ms | 2.000 ms | 5.107 ms |
 
 > [!NOTE]
-> **Median tetap 4-10ms** di semua skenario menunjukkan mayoritas request dilayani sangat cepat. **P95 bahkan membaik** dari 60ms (100 users) ke 29ms (500 users) karena Redis product cache sudah warm pada skenario akhir. Kenaikan P99 pada skenario 4 (270ms) disebabkan oleh beberapa first-time `bcrypt.checkpw()` — bottleneck ini dimitigasi oleh **Redis session cache** yang bypass bcrypt untuk repeat login.
+> **Median tetap 4ms** di semua skenario — bukti bahwa sistem melayani mayoritas request sangat cepat. Kenaikan P99 pada Skenario 4-5 adalah **efek burst** saat 200-500 user bergabung per detik: koneksi baru yang dibuka massal dalam 1-2 detik pertama menyebabkan spike sementara. Setelah fase ramp-up selesai, sistem kembali stabil. **0% failure** membuktikan sistem menyerap seluruh lonjakan tanpa error.
 
 ### Resource Utilization
 
@@ -1062,7 +1065,7 @@ Observasi penting:
 
 ### Kesimpulan
 
-**1. Performa tinggi dengan 0% failure rate** — Sistem berhasil mencapai **196,88 RPS** dengan **0% failure** di seluruh 5 skenario load testing pada GCP Production, mendekati target sempurna 200 RPS. Skor load testing: **29,5 dari 30 poin**.
+**1. Performa tinggi dengan 0% failure rate** — Sistem berhasil mencapai **221,40 RPS** dengan **0% failure** di seluruh 5 skenario load testing pada GCP Production, melampaui target 200 RPS. Skor load testing Skenario 1: **30/30 poin (FULL SCORE)**. Semua skenario peak concurrency juga menunjukkan **500 concurrent users dengan 0% failure** termasuk spawn rate burst 500 users/s.
 
 **2. Arsitektur optimal dalam batasan budget** — Dengan total biaya **$73,38/bulan** (97,8% utilisasi dari batas $75), arsitektur ini memaksimalkan setiap dollar yang dikeluarkan. Tidak ada konfigurasi alternatif dalam batas budget yang sama yang dapat menghasilkan RPS lebih tinggi.
 
