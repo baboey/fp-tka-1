@@ -22,7 +22,7 @@
   <img src="https://img.shields.io/badge/Max_RPS-221.40-brightgreen?style=for-the-badge" alt="RPS">
   <img src="https://img.shields.io/badge/Failure_Rate-0%25-success?style=for-the-badge" alt="Failure">
   <img src="https://img.shields.io/badge/Budget-$73.38_/_$75-blue?style=for-the-badge" alt="Budget">
-  <img src="https://img.shields.io/badge/Peak_Users-%E2%89%A52500-orange?style=for-the-badge" alt="Users">
+  <img src="https://img.shields.io/badge/Peak_Users-1500-orange?style=for-the-badge" alt="Users">
 </p>
 
 ---
@@ -939,32 +939,30 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | Dinaikkan bertahap: **500 → 1000 → 1500 → 2000** (stabil) → 2500 (failure muncul) |
+| Users | **1.500** |
 | Spawn Rate | **100 users/s** |
-| Durasi | 60 detik per uji |
+| Durasi | 60 detik |
 
-**Proses pencarian peak:**
-
-| Users | RPS | Failures | Keterangan |
-|:-----:|:---:|:--------:|------------|
-| 500 | 196,06 | 0 | Stabil |
-| 1000 | 376,16 | 0 | Stabil |
-| 1500 | 293,94 | 0 | Stabil |
-| 2000 | 158,65 | 0 | Stabil — **PEAK** |
-| 2500 | 558,57 | 193 | ❌ Failure muncul |
-
-**Hasil pada Peak (2000 users):**
+**Hasil (1500 users, spawn rate 100):**
 
 | Metrik | Nilai |
 |--------|------:|
+| Total Requests | **12.593** |
 | Failure Rate | **0%** |
-| Rata-rata RPS | 158,65 |
-| Median (P50) | 4 ms |
-| **Max Concurrent Users (0% failure)** | **2.000** |
+| **Rata-rata RPS** | **449,36** |
+| Avg Response Time | 299,57 ms |
+| Median (P50) | 160 ms |
+| P95 Response Time | 1.100 ms |
+| P99 Response Time | 2.500 ms |
+| **Max Concurrent Users (0% failure)** | **1.500** |
 
-> **Screenshot:**
+> **Screenshot Locust:**
 >
-> ![Locust Skenario 3](image/locust-s3.png)
+> ![Locust Skenario 3](image/1500_100_locust_daffan.png)
+
+> **Screenshot htop (Resource Utilization):**
+>
+> ![htop Skenario 3](image/1500_100_htop_daffan.png)
 
 ---
 
@@ -974,35 +972,30 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | Dinaikkan bertahap: **500 → 1000 → 1500 → 2000 → 2500** (semua stabil) |
+| Users | **1.000** |
 | Spawn Rate | **200 users/s** |
-| Durasi | 60 detik per uji |
+| Durasi | 60 detik |
 
-**Proses pencarian peak:**
-
-| Users | RPS | Failures | Keterangan |
-|:-----:|:---:|:--------:|------------|
-| 500 | 190,50 | 0 | Stabil |
-| 1000 | 222,95 | 0 | Stabil |
-| 1500 | 166,81 | 0 | Stabil |
-| 2000 | 158,37 | 0 | Stabil |
-| 2500 | 164,13 | 0 | Stabil — **PEAK (locust VM limit)** |
-
-**Hasil pada Peak (≥ 2500 users):**
+**Hasil (1000 users, spawn rate 200):**
 
 | Metrik | Nilai |
 |--------|------:|
+| Total Requests | **20.303** |
 | Failure Rate | **0%** |
-| Rata-rata RPS | 164,13 |
-| Median (P50) | 4 ms |
-| **Max Concurrent Users (0% failure)** | **≥ 2.500** |
+| **Rata-rata RPS** | **330,49** |
+| Avg Response Time | 428,68 ms |
+| Median (P50) | 48 ms |
+| P95 Response Time | 3.500 ms |
+| P99 Response Time | 5.800 ms |
+| **Max Concurrent Users (0% failure)** | **1.000** |
 
-> [!NOTE]
-> Pengujian dihentikan di 2500 users karena RPS mengalami plateau (~160 RPS) — VM5 Locust (e2-small) menjadi bottleneck, bukan server. Kapasitas server sesungguhnya melebihi 2.500 concurrent users.
-
-> **Screenshot:**
+> **Screenshot Locust:**
 >
-> ![Locust Skenario 4](image/locust-s4.png)
+> ![Locust Skenario 4](image/1000_200_locust_daffan.png)
+
+> **Screenshot htop (Resource Utilization):**
+>
+> ![htop Skenario 4](image/1000_200_htop_daffan.png)
 
 ---
 
@@ -1012,35 +1005,30 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 | Parameter | Nilai |
 |-----------|:-----:|
-| Users | Dinaikkan bertahap: **500 → 1000 → 1500 → 2000 → 2500** (semua stabil) |
+| Users | **1.000** |
 | Spawn Rate | **500 users/s** |
-| Durasi | 60 detik per uji |
+| Durasi | 60 detik |
 
-**Proses pencarian peak:**
-
-| Users | RPS | Failures | Keterangan |
-|:-----:|:---:|:--------:|------------|
-| 500 | 198,14 | 0 | Stabil |
-| 1000 | 180,23 | 0 | Stabil |
-| 1500 | 171,80 | 0 | Stabil |
-| 2000 | 157,23 | 0 | Stabil |
-| 2500 | 149,10 | 0 | Stabil — **PEAK (locust VM limit)** |
-
-**Hasil pada Peak (≥ 2500 users):**
+**Hasil (1000 users, spawn rate 500):**
 
 | Metrik | Nilai |
 |--------|------:|
+| Total Requests | **7.720** |
 | Failure Rate | **0%** |
-| Rata-rata RPS | 149,10 |
-| Median (P50) | 4 ms |
-| **Max Concurrent Users (0% failure)** | **≥ 2.500** |
+| **Rata-rata RPS** | **369,64** |
+| Avg Response Time | 396,34 ms |
+| Median (P50) | 43 ms |
+| P95 Response Time | 1.900 ms |
+| P99 Response Time | 6.900 ms |
+| **Max Concurrent Users (0% failure)** | **1.000** |
 
-> [!NOTE]
-> Pengujian dihentikan di 2500 users karena RPS mengalami plateau (~150 RPS) — VM5 Locust (e2-small) menjadi bottleneck, bukan server. Kapasitas server sesungguhnya melebihi 2.500 concurrent users.
-
-> **Screenshot:**
+> **Screenshot Locust:**
 >
-> ![Locust Skenario 5](image/locust-s5.png)
+> ![Locust Skenario 5](image/1000_500_locust_daffan.png)
+
+> **Screenshot htop (Resource Utilization):**
+>
+> ![htop Skenario 5](image/1000_500_htop_daffan.png)
 
 ---
 
@@ -1050,9 +1038,9 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 |:--:|----------|:-------------------:|:----------:|:-------------:|:---------------------------:|:-------:|
 | 1 | **Maksimum RPS** | 600 | 50/s | **221,40** | — | **0%** |
 | 2 | Peak Concurrency | 1.500 | 50/s | 450,99 | **1.500** | **0%** |
-| 3 | Peak Concurrency | 2.000 | 100/s | 158,65 | **2.000** | **0%** |
-| 4 | Peak Concurrency | ≥ 2.500 | 200/s | 164,13 | **≥ 2.500** | **0%** |
-| 5 | Peak Concurrency | ≥ 2.500 | 500/s | 149,10 | **≥ 2.500** | **0%** |
+| 3 | Peak Concurrency | 1.500 | 100/s | 449,36 | **1.500** | **0%** |
+| 4 | Peak Concurrency | 1.000 | 200/s | 330,49 | **1.000** | **0%** |
+| 5 | Peak Concurrency | 1.000 | 500/s | 369,64 | **1.000** | **0%** |
 
 ### Penilaian RPS (Sesuai Rubrik Soal)
 
@@ -1066,18 +1054,17 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 xychart-beta
     title "Peak Concurrent Users (0% Failure) per Skenario"
     x-axis ["S1: Max RPS", "S2: Spawn 50", "S3: Spawn 100", "S4: Spawn 200", "S5: Spawn 500"]
-    y-axis "Max Concurrent Users (0% Failure)" 0 --> 3000
-    bar [600, 1500, 2000, 2500, 2500]
-    line [600, 1500, 2000, 2500, 2500]
+    y-axis "Max Concurrent Users (0% Failure)" 0 --> 2000
+    bar [600, 1500, 1500, 1000, 1000]
+    line [600, 1500, 1500, 1000, 1000]
 ```
 
 Observasi penting:
 - **Skenario 1 (max RPS) mencapai 221,40 RPS** dengan 600 users — melampaui target 200 RPS untuk **full score 30/30**
-- **Median response time tetap 4ms** di semua skenario peak concurrency — mayoritas request dilayani sangat cepat
-- **0% failure di semua 5 skenario** — sistem stabil bahkan pada ≥ 2.500 concurrent users
-- **Peak S2 = 1.500 users, S3 = 2.000 users** — failure baru muncul saat di atasnya (Locust mencatat request timeout)
-- **Peak S4 & S5 ≥ 2.500 users** — tidak ditemukan titik failure; VM5 Locust (e2-small) menjadi bottleneck sebelum server kewalahan, ditandai plateau RPS ~150-165 dari 2.000 users ke atas
-- **RPS plateau bukan server failure** — plateau RPS pada S4/S5 di ~150-165 RPS disebabkan saturasi VM Locust, bukan keterbatasan kapasitas server GCP
+- **0% failure di semua 5 skenario** — sistem stabil pada seluruh skenario pengujian
+- **Peak S2 = 1.500 users (spawn 50), S3 = 1.500 users (spawn 100)** — dengan spawn rate rendah-menengah, server mampu menangani hingga 1.500 concurrent users tanpa failure
+- **Peak S4 = 1.000 users (spawn 200), S5 = 1.000 users (spawn 500)** — pada spawn rate tinggi, peak concurrent users turun karena burst load yang lebih agresif membebani server lebih cepat
+- **Spawn rate berbanding terbalik dengan peak users** — semakin tinggi spawn rate, semakin cepat user bergabung secara bersamaan, menyebabkan tekanan awal yang lebih besar pada server
 
 ### Perbandingan Response Time
 
@@ -1085,12 +1072,12 @@ Observasi penting:
 |:--------:|:-----:|:----------:|:---:|:------------:|:---:|:---:|:---:|
 | 1 (Max RPS) | 600 | 50/s | 12,7 ms | 4 ms | 63 ms | 130 ms | 1.060 ms |
 | 2 (Spawn 50) | 500 | 50/s | 12,6 ms | 4 ms | 63 ms | 150 ms | 410 ms |
-| 3 (Spawn 100) | 500 | 100/s | 16,3 ms | 4 ms | 84 ms | 240 ms | 1.035 ms |
-| 4 (Spawn 200) | 500 | 200/s | 109,4 ms | 4 ms | 140 ms | 4.600 ms | 7.645 ms |
-| 5 (Spawn 500) | 500 | 500/s | 83,2 ms | 4 ms | 400 ms | 2.000 ms | 5.107 ms |
+| 3 (Spawn 100) | 1.500 | 100/s | 299,57 ms | 160 ms | 1.100 ms | 2.500 ms | 5.190 ms |
+| 4 (Spawn 200) | 1.000 | 200/s | 428,68 ms | 48 ms | 3.500 ms | 5.800 ms | 14.622 ms |
+| 5 (Spawn 500) | 1.000 | 500/s | 396,34 ms | 43 ms | 1.900 ms | 6.900 ms | 8.474 ms |
 
 > [!NOTE]
-> **Median tetap 4ms** di semua skenario — bukti bahwa sistem melayani mayoritas request sangat cepat. Kenaikan P99 pada Skenario 4-5 adalah **efek burst** saat 200-500 user bergabung per detik: koneksi baru yang dibuka massal dalam 1-2 detik pertama menyebabkan spike sementara. Setelah fase ramp-up selesai, sistem kembali stabil. **0% failure** membuktikan sistem menyerap seluruh lonjakan tanpa error.
+> Pada Skenario 3-5, response time meningkat seiring beban yang lebih berat. Namun **0% failure** di semua skenario membuktikan sistem menyerap seluruh lonjakan tanpa error. Kenaikan P95/P99 pada spawn rate tinggi (200-500/s) disebabkan oleh burst load yang lebih agresif — ratusan user bergabung per detik, menyebabkan spike sementara pada awal ramp-up sebelum sistem kembali stabil.
 
 ### Resource Utilization
 
@@ -1110,7 +1097,7 @@ Observasi penting:
 
 ### Kesimpulan
 
-**1. Performa tinggi dengan 0% failure rate** — Sistem berhasil mencapai **221,40 RPS** dengan **0% failure** di seluruh 5 skenario load testing pada GCP Production, melampaui target 200 RPS. Skor load testing Skenario 1: **30/30 poin (FULL SCORE)**. Semua skenario peak concurrency menunjukkan **0% failure** — S2 stabil hingga 1.500 users, S3 hingga 2.000 users, dan S4/S5 stabil hingga ≥ 2.500 users (bottleneck pada VM Locust, bukan server).
+**1. Performa tinggi dengan 0% failure rate** — Sistem berhasil mencapai **221,40 RPS** dengan **0% failure** di seluruh 5 skenario load testing pada GCP Production, melampaui target 200 RPS. Skor load testing Skenario 1: **30/30 poin (FULL SCORE)**. Semua skenario peak concurrency menunjukkan **0% failure** — S2 stabil hingga 1.500 users, S3 hingga 1.500 users, dan S4/S5 stabil hingga 1.000 users.
 
 **2. Arsitektur optimal dalam batasan budget** — Dengan total biaya **$73,38/bulan** (97,8% utilisasi dari batas $75), arsitektur ini memaksimalkan setiap dollar yang dikeluarkan. Tidak ada konfigurasi alternatif dalam batas budget yang sama yang dapat menghasilkan RPS lebih tinggi.
 
