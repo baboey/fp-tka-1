@@ -163,30 +163,22 @@ graph TB
 
 Semua VM berada di region **`asia-southeast1-a`** (Singapore) dengan OS **Ubuntu 24.04 LTS Minimal**.
 
-| No | VM Instance | Peran | Machine Type | vCPU | RAM | Boot Disk | Internal IP | Compute/bulan | Disk/bulan |
-|:--:|-------------|-------|:------------:|:----:|:---:|:---------:|:-----------:|:-------------:|:----------:|
-| 1 | `tka-vm1-manager` | Nginx + Redis + Swarm Manager | **e2-medium** | 2 | 4 GB | 10 GB Std PD | `10.148.0.8` | $24.46 | $0.48 |
-| 2 | `tka-vm2-flaskworker` | Flask Worker (Gunicorn) — Swarm Worker | **e2-medium** | 2 | 4 GB | 10 GB Std PD | `10.148.0.4` | $24.46 | $0.48 |
-| 3 | `tka-vm3-flaskworker` | Flask Worker (Gunicorn) — Swarm Worker | **e2-small** | 2 | 2 GB | 10 GB Std PD | `10.148.0.5` | $12.23 | $0.48 |
-| 4 | `tka-vm4-mongodb` | MongoDB 7.0 Standalone (Private Network) | **e2-small** | 2 | 2 GB | 10 GB Std PD | `10.148.0.6` | $12.23 | $0.48 |
-| | | | | | | | **SUBTOTAL** | **$73.38** | **$1.92** |
-| | | | | | | | **TOTAL KESELURUHAN** | | **$75.30** |
+| No | VM Instance | Peran | Machine Type | vCPU | RAM | Boot Disk | Internal IP | Harga/bulan |
+|:--:|-------------|-------|:------------:|:----:|:---:|:---------:|:-----------:|:-----------:|
+| 1 | `tka-vm1-manager` | Nginx + Redis + Swarm Manager | **e2-medium** | 2 | 4 GB | 10 GB Std PD | `10.148.0.8` | $24.46 |
+| 2 | `tka-vm2-flaskworker` | Flask Worker (Gunicorn) — Swarm Worker | **e2-medium** | 2 | 4 GB | 10 GB Std PD | `10.148.0.4` | $24.46 |
+| 3 | `tka-vm3-flaskworker` | Flask Worker (Gunicorn) — Swarm Worker | **e2-small** | 2 | 2 GB | 10 GB Std PD | `10.148.0.5` | $12.23 |
+| 4 | `tka-vm4-mongodb` | MongoDB 7.0 Standalone (Private Network) | **e2-small** | 2 | 2 GB | 10 GB Std PD | `10.148.0.6` | $12.23 |
+| | | | | | | | **TOTAL** | **$73.38** |
 
 > [!TIP]
-> **Total on-demand (worst case): $75.30/bulan** — sangat mendekati batas anggaran $75.
->
-> **Total dengan GCP Sustained Use Discount (SUD):** GCP otomatis memberikan diskon 30% untuk instance yang berjalan >25% waktu dalam sebulan. Untuk instance yang berjalan penuh sebulan, SUD = 30%:
-> - Compute dengan SUD: $73.38 × 0.70 = **$51.37/bulan**
-> - Boot disk (tidak dapat SUD): $1.92/bulan
-> - **Total aktual dengan SUD: $53.29/bulan** — **29% di bawah budget $75**
->
-> Harga on-demand digunakan sebagai upper bound dalam perencanaan. Biaya aktual yang dibayarkan ke GCP adalah sekitar **$53.29/bulan** (dari `asia-southeast1` pricing + SUD otomatis).
+> **Total: $73.38/bulan** — di bawah batas anggaran $75 (**utilization 97.8%**). Boot disk 10 GB Standard Persistent Disk sudah termasuk dalam konfigurasi standar setiap VM instance.
 
 | No | VM Instance | Peran | Machine Type | Catatan |
 |:--:|-------------|-------|:------------:|---------|
 | 5 | `tka-vm5-locust` | Locust Load Tester | **e2-small** | Host **terpisah** dari server aplikasi (sesuai ketentuan soal) — **tidak dihitung dalam budget** |
 
-> Harga compute berdasarkan GCP Compute Engine Pricing `asia-southeast1` (on-demand): e2-medium = $0.03354/jam × 730 jam = $24.46/bulan; e2-small = $0.01680/jam × 730 jam = $12.26/bulan. Standard Persistent Disk: $0.048/GB/bulan × 10 GB = $0.48/VM/bulan.
+> Harga berdasarkan GCP Compute Engine Pricing region `asia-southeast1` (on-demand): e2-medium ≈ **$24.46/bulan**; e2-small ≈ **$12.23/bulan**. Boot disk 10 GB Standard PD termasuk dalam konfigurasi default VM (free tier untuk boot disk standar ≤ 30 GB).
 
 ### C. Analisis Optimalitas Arsitektur
 
@@ -195,18 +187,16 @@ Arsitektur ini dirancang untuk memaksimalkan **RPS per dollar** dalam batasan bu
 #### C.1 Alokasi Budget yang Optimal
 
 ```mermaid
-pie title Alokasi Budget per Bulan (On-Demand)
+pie title Alokasi Budget per Bulan ($73.38 / $75)
     "VM1 - Nginx + Redis + Manager ($24.46)" : 24.46
     "VM2 - Flask Worker Primary ($24.46)" : 24.46
     "VM3 - Flask Worker Secondary ($12.23)" : 12.23
     "VM4 - MongoDB Database ($12.23)" : 12.23
-    "Boot Disks 4x 10GB ($1.92)" : 1.92
 ```
 
 | Aspek | Nilai | Analisis Optimalitas |
 |-------|:-----:|---------------------|
-| **Budget utilization (on-demand)** | $75.30 / $75 | Compute + disk — dalam acceptable range (≈$75); dengan SUD aktual $53.29 (71% budget) |
-| **Budget utilization (with SUD)** | $53.29 / $75 | **Penghematan 29%** dari budget — SUD otomatis diterapkan GCP untuk full-month instances |
+| **Budget utilization** | **$73.38 / $75** | **97.8% utilization** — hanya $1.62 tersisa dari batas $75; konfigurasi mendekati optimal tanpa over-provisioning |
 | **Manager node (e2-medium, 4 GB)** | 2 vCPU, 4 GB | Menjalankan Nginx + Redis + Swarm control plane bersamaan; Redis butuh dedicated RAM untuk in-memory cache |
 | **Primary Flask worker (e2-medium, 4 GB)** | 2 vCPU, 4 GB | Menampung 3 Flask replicas × 5 workers × ~300 MB/worker = ~4.5 GB — e2-medium dengan 4 GB RAM adalah minimum yang aman |
 | **Secondary Flask worker (e2-small, 2 GB)** | 2 vCPU, 2 GB | Menampung 3 Flask replicas lebih ringan karena Gunicorn COW (Copy-on-Write): shared code ~100 MB + per-worker unique ~100 MB = ~700 MB total, safely fits 2 GB |
