@@ -436,12 +436,15 @@ Saat pertama dijalankan, script [`init_db.sh`](src/scripts/init_db.sh) otomatis:
 Mengganti Flask *development server* (single-threaded, tidak untuk production) dengan **Gunicorn WSGI Server**:
 
 ```dockerfile
-# src/flask/Dockerfile
-FROM python:3.10-alpine
+# syntax=docker/dockerfile:1.4
+FROM --platform=linux/amd64 python:3.10-alpine AS builder
+
 WORKDIR /src
 COPY requirements.txt /src
 RUN pip3 install -r requirements.txt
+
 COPY . .
+
 CMD ["gunicorn", "-w", "5", "-k", "gthread", "--threads", "4", \
      "--keep-alive", "5", "--timeout", "120", \
      "--max-requests", "1000", "--max-requests-jitter", "50", \
@@ -503,51 +506,59 @@ Terdapat dua versi konfigurasi Nginx:
 Berikut konfigurasi **production** yang digunakan di GCP (Docker Swarm):
 
 ```nginx
-# Microcache zone — menyimpan response di RAM
-proxy_cache_path /var/cache/nginx levels=1:2
-    keys_zone=api_cache:10m max_size=100m inactive=30m use_temp_path=off;
+proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=api_cache:10m max_size=100m inactive=30m use_temp_path=off;
 
-# Docker Swarm DNS resolver
 resolver 127.0.0.11 valid=10s;
 
-# Upstream dengan keepalive — reuse TCP connections ke Flask
+# Upstream dengan keepalive — menghindari overhead TCP handshake per request
 upstream flask_backend {
     server flask:9091;
-    keepalive 32;  # 32 persistent connections
+    keepalive 32;  # Menjaga 32 koneksi tetap terbuka ke backend
 }
 
 server {
     listen 80;
 
-    # Serve frontend static files langsung dari disk
     location / {
         root /usr/share/nginx/html;
         index index.html;
         try_files $uri $uri/ =404;
+        
         gzip on;
         gzip_types text/plain text/css application/json application/javascript text/xml;
+        gzip_min_length 1000;
     }
 
-    # CACHED — GET /products (read-heavy, mayoritas traffic)
     location ~ ^/products {
         proxy_pass http://flask_backend;
         proxy_http_version 1.1;
-        proxy_set_header Connection "";        # Required untuk keepalive
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
         proxy_cache api_cache;
-        proxy_cache_valid 200 30s;             # Cache selama 30 detik
+        proxy_cache_valid 200 30s;
         proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
         proxy_cache_bypass $http_authorization;
         proxy_no_cache $http_authorization;
+
         add_header X-Cache-Status $upstream_cache_status;
+
         gzip on;
         gzip_types application/json;
+        gzip_min_length 1000;
     }
 
-    # NOT CACHED — endpoint transaksional (orders, auth, admin)
     location ~ ^/(auth|orders|order|admin|health) {
         proxy_pass http://flask_backend;
         proxy_http_version 1.1;
         proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
@@ -854,7 +865,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 | **Tool** | Locust 2.44.4 |
 | **Host Locust** | `tka-vm5-locust` (10.148.0.7) — **host TERPISAH** dari server aplikasi |
 | **Target** | `http://34.87.110.32` (External IP tka-vm1-manager) |
-| **Locustfile** | [`Resources/Test/locustfile.py`](Resources/Test/locustfile.py) |
+| **Locustfile** | [`src/locust/locustfile.py`](src/locust/locustfile.py) |
 | **Traffic Pattern** | 80% CustomerUser (browse, order) + 20% AdminUser (stats, manage) |
 | **Database Reset** | `mongorestore --drop` dijalankan **sebelum setiap skenario** |
 | **Flask Replicas** | **6 replicas** (distributed across vm1-manager, vm2, vm3 via Docker Swarm) |
