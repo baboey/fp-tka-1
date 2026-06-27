@@ -1047,7 +1047,7 @@ Frontend sederhana berjalan di `http://34.87.110.32/` yang memungkinkan pengguna
 
 > Rata-rata RPS tertinggi dengan 0% failure = **221,40 RPS** (GCP Production — Skenario 1)
 >
-> **Nilai = (221,40 / 200) × 30 = 30/30 poin (FULL SCORE)**
+> **Nilai = (221,40 / 200) × 30 = 30**
 
 ### Analisis Skalabilitas
 
@@ -1061,7 +1061,7 @@ xychart-beta
 ```
 
 Observasi penting:
-- **Skenario 1 (max RPS) mencapai 221,40 RPS** dengan 600 users — melampaui target 200 RPS untuk **full score 30/30**
+- **Skenario 1 (max RPS) mencapai 221,40 RPS** dengan 600 users — melampaui target 200 RPS untuk **30/30**
 - **0% failure di semua 5 skenario** — sistem stabil pada seluruh skenario pengujian
 - **Peak S2 = 1.500 users (spawn 50), S3 = 1.500 users (spawn 100)** — dengan spawn rate rendah-menengah, server mampu menangani hingga 1.500 concurrent users tanpa failure
 - **Peak S4 = 1.000 users (spawn 200), S5 = 1.000 users (spawn 500)** — pada spawn rate tinggi, peak concurrent users turun karena burst load yang lebih agresif membebani server lebih cepat
@@ -1098,7 +1098,7 @@ Observasi penting:
 
 ### Kesimpulan
 
-**1. Performa tinggi dengan 0% failure rate** — Sistem berhasil mencapai **221,40 RPS** dengan **0% failure** di seluruh 5 skenario load testing pada GCP Production, melampaui target 200 RPS. Skor load testing Skenario 1: **30/30 poin (FULL SCORE)**. Semua skenario peak concurrency menunjukkan **0% failure** — S2 stabil hingga 1.500 users, S3 hingga 1.500 users, dan S4/S5 stabil hingga 1.000 users.
+**1. Performa tinggi dengan 0% failure rate** — Sistem berhasil mencapai **221,40 RPS** dengan **0% failure** di seluruh 5 skenario load testing pada GCP Production, melampaui target 200 RPS. Skor load testing Skenario 1: **30/30**. Semua skenario peak concurrency menunjukkan **0% failure** — S2 stabil hingga 1.500 users, S3 hingga 1.500 users, dan S4/S5 stabil hingga 1.000 users.
 
 **2. Arsitektur optimal dalam batasan budget** — Dengan total biaya **$73,38/bulan** (97,8% utilisasi dari batas $75), arsitektur ini memaksimalkan setiap dollar yang dikeluarkan. Tidak ada konfigurasi alternatif dalam batas budget yang sama yang dapat menghasilkan RPS lebih tinggi.
 
