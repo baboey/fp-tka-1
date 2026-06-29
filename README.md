@@ -1141,3 +1141,21 @@ Observasi penting:
   Departemen Teknologi Informasi<br>
   <em>Final Project Teknologi Komputasi Awan 2026</em>
 </p>
+
+---
+
+### Contributor
+<a href="https://github.com/baboey/fp-tka-1/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=baboey/fp-tka-1" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
+
+
+
+
+
+
+
+
+
